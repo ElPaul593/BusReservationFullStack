@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  cedula: { type: String, required: true, unique: true, maxlength: 10 },
+  nombre: { type: String, required: true },
+  apellido: { type: String, required: true },
+  telefono: { type: String, required: true },
+  password: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
+
+// Index para busquedas por cédula
+UserSchema.index({ cedula: 1 });
 
 module.exports = mongoose.model('User', UserSchema);
