@@ -19,7 +19,7 @@ export default function RegisterForm() {
     if (cedula.length === 0) return 'La cédula es requerida';
     if (!/^\d+$/.test(cedula)) return 'La cédula debe contener solo dígitos';
     if (cedula.length > 10) return 'Máximo 10 dígitos';
-    if (cedula.length < 6) return 'La cédula es muy corta';
+    if (cedula.length < 10) return 'La cédula es muy corta';
     return null;
   }, [cedula, touched.cedula]);
 
@@ -45,7 +45,7 @@ export default function RegisterForm() {
   const telefonoError = useMemo(() => {
     if (!touched.telefono) return null;
     if (!telefono.trim()) return 'El teléfono es requerido';
-    // basic digits-only check
+    
     if (!/^\d+$/.test(telefono.trim())) return 'El teléfono debe contener solo dígitos';
     return null;
   }, [telefono, touched.telefono]);

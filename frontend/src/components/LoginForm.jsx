@@ -9,7 +9,7 @@ export default function LoginForm() {
   const [touched, setTouched] = useState({ cedula: false, password: false });
   const navigate = useNavigate();
 
-  // validation: cedula must be exactly 10 digits (or configurable: min 7? user requested max 10)
+  
   const cedulaDigits = cedula.replace(/\D/g, '');
 
   const cedulaError = useMemo(() => {
@@ -31,10 +31,10 @@ export default function LoginForm() {
   const isFormValid = !cedulaError && !passwordError && cedula.length > 0 && password.length > 0;
 
   const handleCedulaChange = (e) => {
-    // allow only digits in state
+
     const raw = e.target.value;
     const digitsOnly = raw.replace(/\D/g, '');
-    // enforce max length 10
+    // Maximo 10 dígitos
     setCedula(digitsOnly.slice(0, 10));
   };
 

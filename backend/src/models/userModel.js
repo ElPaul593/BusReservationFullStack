@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   apellido: { type: String, required: true },
   telefono: { type: String, required: true },
   password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
+  
 });
 
 // Index para busquedas por cédula
