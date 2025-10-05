@@ -19,7 +19,7 @@ export default function RegisterForm() {
     if (cedula.length === 0) return 'La cédula es requerida';
     if (!/^\d+$/.test(cedula)) return 'La cédula debe contener solo dígitos';
     if (cedula.length > 10) return 'Máximo 10 dígitos';
-    if (cedula.length < 10) return 'La cédula es muy corta';
+    if (cedula.length < 6) return 'La cédula es muy corta';
     return null;
   }, [cedula, touched.cedula]);
 
@@ -45,16 +45,16 @@ export default function RegisterForm() {
   const telefonoError = useMemo(() => {
     if (!touched.telefono) return null;
     if (!telefono.trim()) return 'El teléfono es requerido';
-    
     if (!/^\d+$/.test(telefono.trim())) return 'El teléfono debe contener solo dígitos';
     return null;
   }, [telefono, touched.telefono]);
 
-  const isFormValid = !cedulaError && !nombreError && !apellidoError && !passwordError && !telefonoError && cedula && nombre && apellido && password && telefono;
+  const isFormValid =
+    !cedulaError && !nombreError && !apellidoError && !passwordError && !telefonoError &&
+    cedula && nombre && apellido && password && telefono;
 
   const handleCedulaChange = (e) => {
-    const raw = e.target.value;
-    const digitsOnly = raw.replace(/\D/g, '');
+    const digitsOnly = e.target.value.replace(/\D/g, '');
     setCedula(digitsOnly.slice(0, 10));
   };
 
@@ -64,100 +64,112 @@ export default function RegisterForm() {
     setError(null);
     if (!isFormValid) return;
     try {
-      await register({ cedula: cedulaDigits, nombre: nombre.trim(), apellido: apellido.trim(), telefono: telefono.trim(), password });
-      // Auto-login after successful registration
+      await register({
+        cedula: cedulaDigits,
+        nombre: nombre.trim(),
+        apellido: apellido.trim(),
+        telefono: telefono.trim(),
+        password
+      });
       const data = await login({ cedula: cedulaDigits, password });
       localStorage.setItem('token', data.token);
-      navigate('/dashboard');
+      navigate('/users'); // or '/dashboard'
     } catch (err) {
-      setError(err.message || 'Error al registrar');
+      setError(err?.response?.data?.error || err.message || 'Error al registrar');
     }
   };
 
   return (
-    <div style={{ maxWidth: 480, margin: '2rem auto' }}>
-      <h2>Registro de usuario</h2>
-      <form onSubmit={handleSubmit} noValidate>
-        <div style={{ marginBottom: 8 }}>
-          <label htmlFor="cedula">Cédula</label>
-          <input
-            id="cedula"
-            name="cedula"
-            inputMode="numeric"
-            pattern="\\d*"
-            value={cedula}
-            onChange={handleCedulaChange}
-            onBlur={() => setTouched((t) => ({ ...t, cedula: true }))}
-            maxLength={10}
-            required
-            style={{ display: 'block', width: '100%', padding: 8 }}
-          />
-          {cedulaError && <small style={{ color: 'red' }}>{cedulaError}</small>}
-        </div>
+    <main className="center-screen">
+      <div className="card" role="dialog" aria-labelledby="reg-title" style={{maxWidth: 760}}>
+        <h2 id="reg-title">Registro de usuario</h2>
+        <form onSubmit={handleSubmit} noValidate className="form-grid" style={{gridTemplateColumns:'1fr', gap: 14}}>
+          <div className="row-between" style={{gap:14, flexWrap:'wrap'}}>
+            <div className="field" style={{flex:'1 1 240px'}}>
+              <label htmlFor="cedula">Cédula</label>
+              <input
+                id="cedula"
+                className="input"
+                inputMode="numeric"
+                pattern="\\d*"
+                value={cedula}
+                onChange={handleCedulaChange}
+                onBlur={() => setTouched((t) => ({ ...t, cedula: true }))}
+                maxLength={10}
+                placeholder="1723456789"
+                required
+              />
+              {cedulaError && <div className="error">{cedulaError}</div>}
+            </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label htmlFor="nombre">Nombre</label>
-          <input
-            id="nombre"
-            name="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, nombre: true }))}
-            required
-            style={{ display: 'block', width: '100%', padding: 8 }}
-          />
-          {nombreError && <small style={{ color: 'red' }}>{nombreError}</small>}
-        </div>
+            <div className="field" style={{flex:'1 1 240px'}}>
+              <label htmlFor="nombre">Nombre</label>
+              <input
+                id="nombre"
+                className="input"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                onBlur={() => setTouched((t) => ({ ...t, nombre: true }))}
+                placeholder="Pablo"
+                required
+              />
+              {nombreError && <div className="error">{nombreError}</div>}
+            </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label htmlFor="apellido">Apellido</label>
-          <input
-            id="apellido"
-            name="apellido"
-            value={apellido}
-            onChange={(e) => setApellido(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, apellido: true }))}
-            required
-            style={{ display: 'block', width: '100%', padding: 8 }}
-          />
-          {apellidoError && <small style={{ color: 'red' }}>{apellidoError}</small>}
-        </div>
+            <div className="field" style={{flex:'1 1 240px'}}>
+              <label htmlFor="apellido">Apellido</label>
+              <input
+                id="apellido"
+                className="input"
+                value={apellido}
+                onChange={(e) => setApellido(e.target.value)}
+                onBlur={() => setTouched((t) => ({ ...t, apellido: true }))}
+                placeholder="Criollo"
+                required
+              />
+              {apellidoError && <div className="error">{apellidoError}</div>}
+            </div>
+          </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label htmlFor="telefono">Teléfono</label>
-          <input
-            id="telefono"
-            name="telefono"
-            inputMode="numeric"
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value.replace(/\D/g, '').slice(0, 15))}
-            onBlur={() => setTouched((t) => ({ ...t, telefono: true }))}
-            required
-            style={{ display: 'block', width: '100%', padding: 8 }}
-          />
-          {telefonoError && <small style={{ color: 'red' }}>{telefonoError}</small>}
-        </div>
+          <div className="row-between" style={{gap:14, flexWrap:'wrap'}}>
+            <div className="field" style={{flex:'1 1 240px'}}>
+              <label htmlFor="telefono">Teléfono</label>
+              <input
+                id="telefono"
+                className="input"
+                inputMode="numeric"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value.replace(/\D/g, '').slice(0, 15))}
+                onBlur={() => setTouched((t) => ({ ...t, telefono: true }))}
+                placeholder="0999999999"
+                required
+              />
+              {telefonoError && <div className="error">{telefonoError}</div>}
+            </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-            required
-            style={{ display: 'block', width: '100%', padding: 8 }}
-          />
-          {passwordError && <small style={{ color: 'red' }}>{passwordError}</small>}
-        </div>
+            <div className="field" style={{flex:'1 1 240px'}}>
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                className="input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                placeholder="••••••"
+                required
+              />
+              {passwordError && <div className="error">{passwordError}</div>}
+            </div>
+          </div>
 
-        <div style={{ marginTop: 12 }}>
-          <button type="submit" disabled={!isFormValid}>Crear cuenta</button>
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-    </div>
+          <button className="btn btn-primary" type="submit" disabled={!isFormValid}>
+            Crear cuenta
+          </button>
+
+          {error && <div className="error">{error}</div>}
+        </form>
+      </div>
+    </main>
   );
 }

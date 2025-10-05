@@ -9,7 +9,6 @@ export default function LoginForm() {
   const [touched, setTouched] = useState({ cedula: false, password: false });
   const navigate = useNavigate();
 
-  
   const cedulaDigits = cedula.replace(/\D/g, '');
 
   const cedulaError = useMemo(() => {
@@ -28,13 +27,10 @@ export default function LoginForm() {
     return null;
   }, [password, touched.password]);
 
-  const isFormValid = !cedulaError && !passwordError && cedula.length > 0 && password.length > 0;
+  const isFormValid = !cedulaError && !passwordError && cedula && password;
 
   const handleCedulaChange = (e) => {
-
-    const raw = e.target.value;
-    const digitsOnly = raw.replace(/\D/g, '');
-    // Maximo 10 dígitos
+    const digitsOnly = e.target.value.replace(/\D/g, '');
     setCedula(digitsOnly.slice(0, 10));
   };
 
@@ -46,53 +42,56 @@ export default function LoginForm() {
     try {
       const data = await login({ cedula: cedulaDigits, password });
       localStorage.setItem('token', data.token);
-      navigate('/dashboard');
+      navigate('/users'); // or '/dashboard'
     } catch (err) {
-      setError(err.message || 'Error en el login');
+      setError(err?.response?.data?.error || err?.message || 'Error en el login');
     }
   };
 
   return (
-    <div style={{ maxWidth: 420, margin: '2rem auto' }}>
-      <h2>Iniciar sesión</h2>
-      <form onSubmit={handleSubmit} noValidate>
-        <div style={{ marginBottom: 8 }}>
-          <label htmlFor="cedula">Cédula</label>
-          <input
-            id="cedula"
-            name="cedula"
-            inputMode="numeric"
-            pattern="\\d*"
-            value={cedula}
-            onChange={handleCedulaChange}
-            onBlur={() => setTouched((t) => ({ ...t, cedula: true }))}
-            maxLength={10}
-            required
-            style={{ display: 'block', width: '100%', padding: 8 }}
-          />
-          {cedulaError && <small style={{ color: 'red' }}>{cedulaError}</small>}
-        </div>
+    <main className="center-screen">
+      <div className="card" role="dialog" aria-labelledby="login-title">
+        <h2 id="login-title">Iniciar sesión</h2>
+        <form className="form-grid" onSubmit={handleSubmit} noValidate>
+          <div className="field">
+            <label htmlFor="cedula">Cédula</label>
+            <input
+              id="cedula"
+              className="input"
+              inputMode="numeric"
+              pattern="\\d*"
+              value={cedula}
+              onChange={handleCedulaChange}
+              onBlur={() => setTouched((t) => ({ ...t, cedula: true }))}
+              maxLength={10}
+              placeholder="1723456789"
+              required
+            />
+            {cedulaError && <div className="error">{cedulaError}</div>}
+          </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-            required
-            style={{ display: 'block', width: '100%', padding: 8 }}
-          />
-          {passwordError && <small style={{ color: 'red' }}>{passwordError}</small>}
-        </div>
+          <div className="field">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              className="input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+              placeholder="••••••"
+              required
+            />
+            {passwordError && <div className="error">{passwordError}</div>}
+          </div>
 
-        <div style={{ marginTop: 12 }}>
-          <button type="submit" disabled={!isFormValid}>Entrar</button>
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-    </div>
+          <button className="btn btn-primary" type="submit" disabled={!isFormValid}>
+            Entrar
+          </button>
+
+          {error && <div className="error">{error}</div>}
+        </form>
+      </div>
+    </main>
   );
 }
