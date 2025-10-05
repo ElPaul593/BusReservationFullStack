@@ -1,0 +1,249 @@
+/* Navbar.css - Estilo minimalista negro */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #333333;
+  z-index: 1000;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+}
+
+/* Logo */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.navbar-logo:hover {
+  color: #FFD700;
+}
+
+.logo-icon {
+  font-size: 1.8rem;
+}
+
+/* Desktop Menu */
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.navbar-link {
+  color: #cccccc;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.navbar-link:hover,
+.navbar-link.active {
+  color: #FFD700;
+}
+
+.navbar-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #FFD700;
+}
+
+/* Buttons */
+.navbar-btn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 0.95rem;
+}
+
+.navbar-btn.login {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #333333;
+}
+
+.navbar-btn.login:hover {
+  background: #FFD700;
+  color: #0a0a0a;
+  border-color: #FFD700;
+}
+
+.navbar-btn.register {
+  background: #FFD700;
+  color: #0a0a0a;
+  border: 1px solid #FFD700;
+}
+
+.navbar-btn.register:hover {
+  background: #FFA500;
+  color: #0a0a0a;
+}
+
+.navbar-btn.logout {
+  background: #333333;
+  color: #ffffff;
+  border: 1px solid #333333;
+}
+
+.navbar-btn.logout:hover {
+  background: #ff4444;
+  border-color: #ff4444;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.hamburger {
+  width: 24px;
+  height: 18px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger span {
+  width: 100%;
+  height: 2px;
+  background: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  display: none;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #333333;
+  padding: 1rem 0;
+}
+
+.mobile-link {
+  display: block;
+  color: #cccccc;
+  text-decoration: none;
+  padding: 1rem 2rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.mobile-link:hover,
+.mobile-link.active {
+  color: #FFD700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.mobile-btn {
+  display: block;
+  margin: 1rem 2rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.mobile-btn.login {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #333333;
+}
+
+.mobile-btn.login:hover {
+  background: #FFD700;
+  color: #0a0a0a;
+}
+
+.mobile-btn.register {
+  background: #FFD700;
+  color: #0a0a0a;
+  border: 1px solid #FFD700;
+}
+
+.mobile-btn.register:hover {
+  background: #FFA500;
+  color: #0a0a0a;
+}
+
+.mobile-btn.logout {
+  background: #333333;
+  color: #ffffff;
+  border: 1px solid #333333;
+}
+
+.mobile-btn.logout:hover {
+  background: #ff4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 1rem;
+  }
+  
+  .navbar-menu {
+    display: none;
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+  }
+  
+  .mobile-menu {
+    display: block;
+  }
+}
+
+/* Add padding to body to account for fixed navbar */
+body {
+  padding-top: 70px;
+}

@@ -30,6 +30,11 @@ export default function Home() {
       setUsers(data);
     } catch (e) {
       setError(e.message);
+      // Si es error de autorización, limpiar token y mostrar mensaje específico
+      if (e.message.includes('Acceso denegado') || e.message.includes('Token')) {
+        localStorage.removeItem('token');
+        setError('No tienes permisos para acceder a esta sección. Solo usuarios autorizados pueden ver la información de usuarios.');
+      }
     } finally {
       setLoading(false);
     }

@@ -83,11 +83,21 @@ export default function LoginForm() {
               required
             />
             {passwordError && <div className="error">{passwordError}</div>}
+            <div className="forgot-password">
+              <button 
+                type="button" 
+                className="forgot-link"
+                onClick={() => alert('Función de recuperar contraseña - Aquí se implementaría el flujo de recuperación')}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
           </div>
 
           <button className="btn btn-primary" type="submit" disabled={!isFormValid}>
             Entrar
           </button>
+
 
           {error && <div className="error">{error}</div>}
         </form>
