@@ -26,14 +26,13 @@ exports.authenticateToken = async (req, res, next) => {
 };
 
 // Lista de cédulas con acceso administrativo
-const adminCedulas = ['1724643976', '1705746483'];
-
-// Middleware para verificar si el usuario tiene acceso administrativo
+// NOTE: Se ha eliminado la comprobación por cédula para evitar bloqueos
+// de acceso desde otros usuarios. Actualmente permitimos que cualquier
+// usuario autenticado (pasa por `authenticateToken`) acceda a las rutas
+// que antes requerían admin. Si más adelante quieres controlar acceso
+// por rol, añade un campo `role` al modelo `User` y reemplaza esta
+// función por una comprobación como `if (req.user.role !== 'admin') ...`.
 exports.requireAdminAccess = (req, res, next) => {
-  if (!adminCedulas.includes(req.user.cedula)) {
-    return res.status(403).json({ 
-      error: 'Acceso denegado. No tienes permisos para acceder a esta sección.' 
-    });
-  }
-  next();
+  // Restricción administrativa deshabilitada intencionalmente.
+  return next();
 };

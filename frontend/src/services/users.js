@@ -70,3 +70,13 @@ export async function getUserById(id) {
     throw new Error(message);
   }
 }
+
+export async function getCurrentUser() {
+  try {
+    const response = await api.get('/users/me', { headers: getAuthHeaders() });
+    return response.data;
+  } catch (err) {
+    const message = err?.response?.data?.message || err?.response?.data?.error || err.message || 'Error al obtener usuario actual';
+    throw new Error(message);
+  }
+}

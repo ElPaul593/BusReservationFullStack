@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Profile.css';
+import { getCurrentUser } from '../services/users';
 
 export default function Profile() {
   const [loading, setLoading] = useState(true);
@@ -11,20 +12,9 @@ export default function Profile() {
   const token = localStorage.getItem('token');
   
   // Datos de ejemplo del usuario
-  const userSample = {
-    cedula: '1724643976',
-    nombre: 'Pablo',
-    apellido: 'Criollo',
-    telefono: '0963386219',
-    createdAt: '2025-01-15T10:30:00Z'
-  };
-  
-  const [formData, setFormData] = useState({
-    nombre: userSample.nombre,
-    apellido: userSample.apellido,
-    telefono: userSample.telefono,
-    password: ''
-  });
+
+  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({ nombre: '', apellido: '', telefono: '', password: '' });
 
   useEffect(() => {
     // Validar autenticación
@@ -34,9 +24,27 @@ export default function Profile() {
     }
     
     // Simular carga de datos
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    // Obtener datos reales del usuario autenticado
+    (async () => {
+      try {
+        const me = await getCurrentUser();
+        setUser(me);
+        setFormData({
+          nombre: me.nombre || '',
+          apellido: me.apellido || '',
+          telefono: me.telefono || '',
+          password: ''
+        });
+      } catch (err) {
+        // Si hay error (token inválido, expirado, etc.), redirigir al login
+        console.error('Error al obtener usuario actual:', err.message);
+        localStorage.removeItem('token');
+        navigate('/login');
+        return;
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [token, navigate]);
 
   const handleInputChange = (e) => {
@@ -71,9 +79,9 @@ export default function Profile() {
   const handleCancelEdit = () => {
     setEditing(false);
     setFormData({
-      nombre: userSample.nombre,
-      apellido: userSample.apellido,
-      telefono: userSample.telefono,
+      nombre: user.nombre || '',
+      apellido: user.apellido || '',
+      telefono: user.telefono || '',
       password: ''
     });
     setError(null);
@@ -126,23 +134,23 @@ export default function Profile() {
           <div className="profile-info">
             <div className="info-group">
               <label>Cédula:</label>
-              <span>{userSample.cedula}</span>
+              <span>{user.cedula}</span>
             </div>
             <div className="info-group">
               <label>Nombre:</label>
-              <span>{userSample.nombre}</span>
+              <span>{user.nombre}</span>
             </div>
             <div className="info-group">
               <label>Apellido:</label>
-              <span>{userSample.apellido}</span>
+              <span>{user.apellido}</span>
             </div>
             <div className="info-group">
               <label>Teléfono:</label>
-              <span>{userSample.telefono}</span>
+              <span>{user.telefono}</span>
             </div>
             <div className="info-group">
               <label>Fecha de registro:</label>
-              <span>{new Date(userSample.createdAt).toLocaleDateString()}</span>
+              <span>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}</span>
             </div>
           </div>
         ) : (
@@ -151,7 +159,7 @@ export default function Profile() {
               <label>Cédula:</label>
               <input 
                 type="text" 
-                value={userSample.cedula} 
+                value={user.cedula} 
                 disabled 
                 className="input-disabled"
               />
