@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register, login } from '../services/auth';
+import { PAISES } from '../constants/paises';
 
 export default function RegisterForm() {
   const [cedula, setCedula] = useState('');
@@ -81,7 +82,7 @@ export default function RegisterForm() {
       });
       const data = await login({ cedula: cedulaDigits, password });
       localStorage.setItem('token', data.token);
-      navigate('/users'); // or '/dashboard'
+      navigate('/dashboard');
     } catch (err) {
       setError(err?.response?.data?.error || err.message || 'Error al registrar');
     }
@@ -182,22 +183,9 @@ export default function RegisterForm() {
               required
             >
               <option value="">Seleccione un país</option>
-              <option value="Ecuador">Ecuador</option>
-              <option value="Colombia">Colombia</option>
-              <option value="Perú">Perú</option>
-              <option value="Venezuela">Venezuela</option>
-              <option value="Argentina">Argentina</option>
-              <option value="Chile">Chile</option>
-              <option value="Brasil">Brasil</option>
-              <option value="México">México</option>
-              <option value="Estados Unidos">Estados Unidos</option>
-              <option value="España">España</option>
-              <option value="Francia">Francia</option>
-              <option value="Alemania">Alemania</option>
-              <option value="Italia">Italia</option>
-              <option value="Reino Unido">Reino Unido</option>
-              <option value="Canadá">Canadá</option>
-              <option value="Otro">Otro</option>
+              {PAISES.map((pais, index) => (
+                <option key={index} value={pais}>{pais}</option>
+              ))}
             </select>
             {paisOrigenError && <div className="error">{paisOrigenError}</div>}
           </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getRecomendados } from '../services/recomendaciones';
-import '../styles/Recomendados.css';
+import { TIPOS_RECOMENDACION, TIPO_DEFAULT } from '../constants/recomendaciones';
 
 export default function Recomendados() {
   const [searchParams] = useSearchParams();
@@ -10,7 +10,7 @@ export default function Recomendados() {
   
   const [recomendados, setRecomendados] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tipo, setTipo] = useState('lugarTuristico');
+  const [tipo, setTipo] = useState(TIPO_DEFAULT);
   const [usuarioId, setUsuarioId] = useState(null);
 
   useEffect(() => {
@@ -69,8 +69,9 @@ export default function Recomendados() {
         <label>
           Tipo:
           <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            <option value="lugarTuristico">Lugares Turísticos</option>
-            <option value="hotel">Hoteles</option>
+            {TIPOS_RECOMENDACION.map((tipoOption) => (
+              <option key={tipoOption.value} value={tipoOption.value}>{tipoOption.label}</option>
+            ))}
           </select>
         </label>
       </div>

@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getHoteles } from '../services/hoteles';
 import { getLugaresTuristicos } from '../services/lugaresTuristicos';
 import { getCalificaciones, createCalificacion } from '../services/calificaciones';
-import '../styles/Destino.css';
+import { OPCIONES_CALIFICACION, CALIFICACION_DEFAULT } from '../constants/calificaciones';
 
 export default function Destino() {
   const [searchParams] = useSearchParams();
@@ -16,7 +16,7 @@ export default function Destino() {
   const [activeTab, setActiveTab] = useState('hoteles'); // 'hoteles' o 'lugares'
   const [calificaciones, setCalificaciones] = useState({});
   const [showCalificarModal, setShowCalificarModal] = useState(null);
-  const [calificacionForm, setCalificacionForm] = useState({ calificacion: 5, recomendacion: '' });
+  const [calificacionForm, setCalificacionForm] = useState({ calificacion: CALIFICACION_DEFAULT, recomendacion: '' });
 
   useEffect(() => {
     if (!ciudad) {
@@ -96,7 +96,7 @@ export default function Destino() {
         recomendacion: calificacionForm.recomendacion
       });
       setShowCalificarModal(null);
-      setCalificacionForm({ calificacion: 5, recomendacion: '' });
+      setCalificacionForm({ calificacion: CALIFICACION_DEFAULT, recomendacion: '' });
       await loadCalificaciones();
       await loadData();
     } catch (err) {
@@ -213,11 +213,9 @@ export default function Destino() {
                 value={calificacionForm.calificacion}
                 onChange={(e) => setCalificacionForm({ ...calificacionForm, calificacion: parseInt(e.target.value) })}
               >
-                <option value={1}>1 ⭐</option>
-                <option value={2}>2 ⭐⭐</option>
-                <option value={3}>3 ⭐⭐⭐</option>
-                <option value={4}>4 ⭐⭐⭐⭐</option>
-                <option value={5}>5 ⭐⭐⭐⭐⭐</option>
+                {OPCIONES_CALIFICACION.map((opcion) => (
+                  <option key={opcion.value} value={opcion.value}>{opcion.label}</option>
+                ))}
               </select>
             </div>
             <div className="form-group">

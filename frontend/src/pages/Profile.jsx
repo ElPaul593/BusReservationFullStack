@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Profile.css';
-import { getCurrentUser } from '../services/users';
+import { getCurrentUser, deleteCurrentUser } from '../services/users';
 
 export default function Profile() {
   const [loading, setLoading] = useState(true);
@@ -66,13 +65,23 @@ export default function Profile() {
     }, 500);
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm(
       '¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.'
     );
     
-    if (confirmDelete) {
-      alert('Función de eliminar cuenta - Aquí se conectaría con el backend');
+    if (!confirmDelete) return;
+    
+    try {
+      setError(null);
+      await deleteCurrentUser();
+      // Si se elimina exitosamente, limpiar token y redirigir
+      localStorage.removeItem('token');
+      alert('Tu cuenta ha sido eliminada exitosamente');
+      navigate('/demo');
+    } catch (err) {
+      setError('Error al eliminar cuenta: ' + err.message);
+      console.error('Error al eliminar cuenta:', err);
     }
   };
 

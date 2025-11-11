@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Demo from './pages/Demo';
-import Home from './pages/Home';
 import Login from './components/LoginForm';
 import Register from './components/RegisterForm';
 import Dashboard from './pages/Dashboard';
@@ -23,7 +22,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/demo" replace />} />
         <Route path="/demo" element={<Demo />} />
-        <Route path="/users" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />

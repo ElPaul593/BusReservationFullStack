@@ -42,7 +42,7 @@ export default function LoginForm() {
     try {
       const data = await login({ cedula: cedulaDigits, password });
       localStorage.setItem('token', data.token);
-      navigate('/users'); // or '/dashboard'
+      navigate('/dashboard');
     } catch (err) {
       setError(err?.response?.data?.error || err?.message || 'Error en el login');
     }

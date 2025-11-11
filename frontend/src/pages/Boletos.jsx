@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../styles/Boletos.css';
+import { BOLETOS_SAMPLE } from '../constants/boletos';
+import { CIUDADES, CIUDADES_OPTIONS } from '../constants/ciudades';
 
 export default function Boletos() {
   const [loading, setLoading] = useState(true);
@@ -20,38 +21,7 @@ export default function Boletos() {
     }, 1000);
   }, [token, navigate]);
 
-  const boletosSample = [
-    {
-      id: 1,
-      origen: 'Quito',
-      destino: 'Guayaquil',
-      fecha: '2025-10-15',
-      hora: '08:00',
-      precio: '$12.50',
-      asientos: 45,
-      empresa: 'TransEcuador'
-    },
-    {
-      id: 2,
-      origen: 'Cuenca',
-      destino: 'Quito',
-      fecha: '2025-10-15',
-      hora: '14:30',
-      precio: '$15.00',
-      asientos: 32,
-      empresa: 'Buses del Sur'
-    },
-    {
-      id: 3,
-      origen: 'Guayaquil',
-      destino: 'Cuenca',
-      fecha: '2025-10-16',
-      hora: '06:45',
-      precio: '$10.00',
-      asientos: 28,
-      empresa: 'Rápido Express'
-    }
-  ];
+  const boletosSample = BOLETOS_SAMPLE;
 
   const handleReservar = (boletoId) => {
     alert(`Reservando boleto ID: ${boletoId}`);
@@ -83,19 +53,17 @@ export default function Boletos() {
           <div className="filter-group">
             <label>Origen</label>
             <select>
-              <option>Todas las ciudades</option>
-              <option>Quito</option>
-              <option>Guayaquil</option>
-              <option>Cuenca</option>
+              {CIUDADES_OPTIONS.map((option, index) => (
+                <option key={index} value={option.value}>{option.label}</option>
+              ))}
             </select>
           </div>
           <div className="filter-group">
             <label>Destino</label>
             <select>
-              <option>Todas las ciudades</option>
-              <option>Quito</option>
-              <option>Guayaquil</option>
-              <option>Cuenca</option>
+              {CIUDADES_OPTIONS.map((option, index) => (
+                <option key={index} value={option.value}>{option.label}</option>
+              ))}
             </select>
           </div>
           <div className="filter-group">

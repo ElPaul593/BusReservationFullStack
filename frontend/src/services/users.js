@@ -80,3 +80,18 @@ export async function getCurrentUser() {
     throw new Error(message);
   }
 }
+
+export async function deleteCurrentUser() {
+  try {
+    // Primero obtenemos el usuario actual para obtener su ID
+    const currentUser = await getCurrentUser();
+    // Luego eliminamos usando el ID
+    const response = await api.delete(`/users/${currentUser._id}`, { 
+      headers: getAuthHeaders() 
+    });
+    return response.data;
+  } catch (err) {
+    const message = err?.response?.data?.message || err?.response?.data?.error || err.message || 'Error al eliminar cuenta';
+    throw new Error(message);
+  }
+}

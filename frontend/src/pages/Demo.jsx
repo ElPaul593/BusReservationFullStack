@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Demo.css';
+import { HERO_CONTENT, FEATURES, RUTAS_POPULARES, CTA_CONTENT } from '../constants/demo';
 
 export default function Demo() {
   const navigate = useNavigate();
@@ -20,12 +20,11 @@ export default function Demo() {
       <section className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">
-            Reserva tu Viaje
-            <span className="hero-subtitle">Fácil, Rápido y Seguro</span>
+            {HERO_CONTENT.title}
+            <span className="hero-subtitle">{HERO_CONTENT.subtitle}</span>
           </h1>
           <p className="hero-description">
-            La plataforma líder en reservas de buses interprovinciales. 
-            Conectamos Ecuador de costa a costa con los mejores servicios de transporte.
+            {HERO_CONTENT.description}
           </p>
           <div className="hero-buttons">
             <button className="btn-primary" onClick={handleGetStarted}>
@@ -48,26 +47,13 @@ export default function Demo() {
         <div className="container">
           <h2 className="section-title">¿Por qué elegirnos?</h2>
           <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">🗺️</div>
-              <h3>Rutas Interprovinciales</h3>
-              <p>Conectamos las principales ciudades del Ecuador con rutas directas y cómodas.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">💺</div>
-              <h3>Reserva tu Asiento</h3>
-              <p>Selecciona tu asiento favorito y viaja con la comodidad que mereces.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">📱</div>
-              <h3>Boletos Digitales</h3>
-              <p>Recibe tu boleto al instante y viaja sin complicaciones con tu móvil.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🔒</div>
-              <h3>Pago Seguro</h3>
-              <p>Transacciones protegidas para que reserves con total tranquilidad.</p>
-            </div>
+            {FEATURES.map((feature, index) => (
+              <div key={index} className="feature-card">
+                <div className="feature-icon">{feature.icon}</div>
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -77,27 +63,15 @@ export default function Demo() {
         <div className="container">
           <h2 className="section-title">Rutas Populares</h2>
           <div className="routes-grid">
-            <div className="route-card">
-              <div className="route-info">
-                <h4>Quito ➜ Guayaquil</h4>
-                <p>Desde <span className="price">$12.50</span></p>
-                <span className="duration">8 horas</span>
+            {RUTAS_POPULARES.map((ruta, index) => (
+              <div key={index} className="route-card">
+                <div className="route-info">
+                  <h4>{ruta.origen} ➜ {ruta.destino}</h4>
+                  <p>Desde <span className="price">{ruta.precio}</span></p>
+                  <span className="duration">{ruta.duracion}</span>
+                </div>
               </div>
-            </div>
-            <div className="route-card">
-              <div className="route-info">
-                <h4>Cuenca ➜ Quito</h4>
-                <p>Desde <span className="price">$15.00</span></p>
-                <span className="duration">6 horas</span>
-              </div>
-            </div>
-            <div className="route-card">
-              <div className="route-info">
-                <h4>Guayaquil ➜ Cuenca</h4>
-                <p>Desde <span className="price">$10.00</span></p>
-                <span className="duration">4 horas</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -106,8 +80,8 @@ export default function Demo() {
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
-            <h2>¿Listo para tu próximo viaje?</h2>
-            <p>Únete a miles de usuarios que ya confían en nosotros</p>
+            <h2>{CTA_CONTENT.title}</h2>
+            <p>{CTA_CONTENT.description}</p>
             <button className="btn-primary" onClick={handleGetStarted}>
               {token ? 'Ver mis Reservas' : 'Registrarse Gratis'}
             </button>
