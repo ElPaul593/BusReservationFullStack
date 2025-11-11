@@ -1,0 +1,162 @@
+.recomendados-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.recomendados-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.recomendados-header h1 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.recomendados-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.filters {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+}
+
+.filters select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.recomendados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.recomendado-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.recomendado-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+}
+
+.badge-top {
+  position: absolute;
+  top: -10px;
+  right: 20px;
+  background: #ffd700;
+  color: #333;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.recomendado-card h3 {
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.recomendado-card .tipo {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.recomendado-card .direccion {
+  opacity: 0.9;
+  margin: 0.5rem 0;
+}
+
+.recomendado-card .descripcion {
+  opacity: 0.95;
+  margin: 1rem 0;
+  line-height: 1.6;
+}
+
+.stats {
+  background: rgba(255,255,255,0.15);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-item.highlight {
+  background: rgba(255,255,255,0.2);
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.recomendado-card .precio {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: rgba(255,255,255,0.2);
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.no-recomendaciones {
+  text-align: center;
+  padding: 3rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #666;
+}
+
+.no-recomendaciones p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
