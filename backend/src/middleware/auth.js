@@ -36,3 +36,23 @@ exports.requireAdminAccess = (req, res, next) => {
   // Restricción administrativa deshabilitada intencionalmente.
   return next();
 };
+
+// Middleware para restringir acceso al dashboard de gestión de usuarios
+// Solo permite acceso a usuarios con cédulas específicas
+exports.requireDashboardAccess = (req, res, next) => {
+  // Lista de cédulas autorizadas para acceder al dashboard
+  const authorizedCedulas = ['1722108188', '1724643976'];
+  
+  // Verificar que el usuario esté autenticado (debe pasar por authenticateToken primero)
+  if (!req.user) {
+    return res.status(401).json({ error: 'Usuario no autenticado' });
+  }
+  
+  // Verificar que la cédula del usuario esté en la lista de autorizados
+  const userCedula = String(req.user.cedula || '').trim();
+  if (!authorizedCedulas.includes(userCedula)) {
+    return res.status(403).json({ error: 'Acceso denegado. No tienes permisos para acceder a esta sección.' });
+  }
+  
+  next();
+};

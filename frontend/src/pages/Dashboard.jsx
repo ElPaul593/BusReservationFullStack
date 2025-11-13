@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { listUsers, createUser, updateUser, deleteUser } from '../services/users';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { listUsers, createUser, updateUser, deleteUser, getCurrentUser } from '../services/users';
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [authorized, setAuthorized] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem('token');
+  
+  // Determinar si estamos en la ruta de dashboard de gestión de usuarios
+  const isUserManagementDashboard = location.pathname === '/dashboard';
+  
+  // Cédulas autorizadas para acceder al dashboard
+  const authorizedCedulas = ['1722108188', '1724643976'];
 
   const [formData, setFormData] = useState({
     cedula: '',
@@ -25,15 +33,7 @@ export default function Dashboard() {
     password: ''
   });
 
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    loadUsers();
-  }, [token, navigate]);
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -48,7 +48,51 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    
+    // Si estamos en /reservas, no aplicar restricción
+    if (!isUserManagementDashboard) {
+      setAuthorized(true);
+      setLoading(false);
+      // Aquí podrías cargar reservas si tuvieras un servicio para eso
+      return;
+    }
+    
+    // Solo verificar acceso si estamos en /dashboard (gestión de usuarios)
+    const checkAccess = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        const userCedula = String(currentUser.cedula || '').trim();
+        
+        if (authorizedCedulas.includes(userCedula)) {
+          setAuthorized(true);
+          loadUsers();
+        } else {
+          setError('Acceso denegado. No tienes permisos para acceder a esta sección.');
+          setLoading(false);
+          // Redirigir después de 2 segundos
+          setTimeout(() => {
+            navigate('/demo');
+          }, 2000);
+        }
+      } catch (err) {
+        setError('Error al verificar permisos: ' + err.message);
+        setLoading(false);
+        if (err.message.includes('Token') || err.message.includes('autenticado')) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
+      }
+    };
+    
+    checkAccess();
+  }, [token, navigate, loadUsers, isUserManagementDashboard]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -101,6 +145,40 @@ export default function Dashboard() {
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Cargando usuarios...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si estamos en /reservas, mostrar página de reservas
+  if (!isUserManagementDashboard) {
+    return (
+      <div className="dashboard-container">
+        <div className="container">
+          <div className="dashboard-header">
+            <h1>Mis Reservas</h1>
+            <p>Gestiona tus reservas de viaje</p>
+          </div>
+          <div className="dashboard-section">
+            <div className="empty-state">
+              <p>No tienes reservas aún. <a href="/boletos">Explora nuestros boletos disponibles</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Si no está autorizado para gestión de usuarios, mostrar mensaje de error
+  if (!authorized) {
+    return (
+      <div className="dashboard-container">
+        <div className="container">
+          <div className="error-message" style={{ textAlign: 'center', padding: '2rem' }}>
+            <h2>Acceso Denegado</h2>
+            <p>No tienes permisos para acceder a esta sección.</p>
+            <p>Serás redirigido en breve...</p>
+          </div>
         </div>
       </div>
     );
