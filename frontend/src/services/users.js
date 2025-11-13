@@ -81,6 +81,19 @@ export async function getCurrentUser() {
   }
 }
 
+export async function updateCurrentUser(userData) {
+  try {
+    // Usar la ruta /users/me para actualizar el perfil del usuario actual
+    const response = await api.put('/users/me', userData, { 
+      headers: getAuthHeaders() 
+    });
+    return response.data;
+  } catch (err) {
+    const message = err?.response?.data?.error || err.message || 'Error al actualizar perfil';
+    throw new Error(message);
+  }
+}
+
 export async function deleteCurrentUser() {
   try {
     // Primero obtenemos el usuario actual para obtener su ID

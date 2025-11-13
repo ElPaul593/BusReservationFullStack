@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, deleteCurrentUser } from '../services/users';
+import { getCurrentUser, deleteCurrentUser, updateCurrentUser } from '../services/users';
 
 export default function Profile() {
   const [loading, setLoading] = useState(true);
@@ -53,16 +53,42 @@ export default function Profile() {
     });
   };
 
-  const handleUpdateProfile = (e) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
     
-    // Simular actualización
-    setTimeout(() => {
+    try {
+      // Preparar los datos para actualizar (solo enviar password si no está vacío)
+      const updateData = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        telefono: formData.telefono
+      };
+      
+      // Solo incluir password si se proporcionó uno nuevo
+      if (formData.password && formData.password.trim() !== '') {
+        updateData.password = formData.password;
+      }
+      
+      // Llamar a la API para actualizar el perfil
+      const updatedUser = await updateCurrentUser(updateData);
+      
+      // Actualizar el estado local con los datos actualizados
+      setUser(updatedUser);
+      setFormData({
+        nombre: updatedUser.nombre || '',
+        apellido: updatedUser.apellido || '',
+        telefono: updatedUser.telefono || '',
+        password: ''
+      });
+      
       setSuccess('Perfil actualizado exitosamente');
       setEditing(false);
-    }, 500);
+    } catch (err) {
+      setError('Error al actualizar perfil: ' + err.message);
+      console.error('Error al actualizar perfil:', err);
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -158,6 +184,10 @@ export default function Profile() {
               <span>{user.telefono}</span>
             </div>
             <div className="info-group">
+              <label>País de origen:</label>
+              <span>{user.paisOrigen || 'No especificado'}</span>
+            </div>
+            <div className="info-group">
               <label>Fecha de registro:</label>
               <span>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}</span>
             </div>
@@ -173,6 +203,17 @@ export default function Profile() {
                 className="input-disabled"
               />
               <small>La cédula no se puede modificar</small>
+            </div>
+            
+            <div className="form-group">
+              <label>País de origen:</label>
+              <input 
+                type="text" 
+                value={user.paisOrigen || ''} 
+                disabled 
+                className="input-disabled"
+              />
+              <small>El país de origen no se puede modificar</small>
             </div>
             
             <div className="form-group">

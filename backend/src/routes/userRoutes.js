@@ -4,8 +4,8 @@ const userController = require('../controllers/userController');
 const { authenticateToken, requireAdminAccess } = require('../middleware/auth');
 
 // Todas las rutas requieren autenticación y acceso de administrador
-// Nota: añadimos una ruta pública para que el usuario autenticado obtenga
-// sus propios datos: GET /users/me
+// Nota: añadimos rutas públicas para que el usuario autenticado obtenga
+// y actualice sus propios datos: GET /users/me y PUT /users/me
 router.get('/me', authenticateToken, (req, res) => {
 	// req.user se establece en authenticateToken
 	const user = req.user;
@@ -13,6 +13,17 @@ router.get('/me', authenticateToken, (req, res) => {
 	// No devolver password
 	const { password, __v, ...safeUser } = user.toObject ? user.toObject() : user;
 	res.json(safeUser);
+});
+
+// Ruta para que el usuario actualice su propio perfil
+router.put('/me', authenticateToken, async (req, res) => {
+	try {
+		// Usar el ID del usuario autenticado
+		req.params = { id: req.user._id.toString() };
+		await userController.update(req, res);
+	} catch (err) {
+		// El error ya se maneja en el controlador
+	}
 });
 
 router.get('/', authenticateToken, requireAdminAccess, userController.getAll);   
