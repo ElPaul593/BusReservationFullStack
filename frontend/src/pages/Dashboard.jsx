@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { listUsers, createUser, updateUser, deleteUser, getCurrentUser } from '../services/users';
+import CedulaValidatorSimple from '../components/CedulaValidatorSimple';
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
@@ -56,15 +57,15 @@ export default function Dashboard() {
       return;
     }
     
-    // Si estamos en /reservas, no aplicar restricción
+
     if (!isUserManagementDashboard) {
       setAuthorized(true);
       setLoading(false);
-      // Aquí podrías cargar reservas si tuvieras un servicio para eso
+
+      
       return;
     }
-    
-    // Solo verificar acceso si estamos en /dashboard (gestión de usuarios)
+
     const checkAccess = async () => {
       try {
         const currentUser = await getCurrentUser();
@@ -76,7 +77,7 @@ export default function Dashboard() {
         } else {
           setError('Acceso denegado. No tienes permisos para acceder a esta sección.');
           setLoading(false);
-          // Redirigir después de 2 segundos
+
           setTimeout(() => {
             navigate('/demo');
           }, 2000);
@@ -150,7 +151,7 @@ export default function Dashboard() {
     );
   }
 
-  // Si estamos en /reservas, mostrar página de reservas
+
   if (!isUserManagementDashboard) {
     return (
       <div className="dashboard-container">
@@ -193,6 +194,11 @@ export default function Dashboard() {
         </div>
 
         {error && <div className="error-message">{error}</div>}
+
+        {/* Cédula Validator */}
+        <div className="dashboard-section">
+          <CedulaValidatorSimple />
+        </div>
 
         {/* Create Form */}
         <div className="dashboard-section">

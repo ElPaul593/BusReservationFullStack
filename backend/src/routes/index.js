@@ -11,6 +11,7 @@ const hotelRoutes = require('./hotelRoutes');
 const lugarTuristicoRoutes = require('./lugarTuristicoRoutes');
 const calificacionRoutes = require('./calificacionRoutes');
 const recomendacionRoutes = require('./recomendacionRoutes');
+const cedulaRoutes = require('./cedulaRoutes');
 
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
@@ -21,5 +22,6 @@ router.use('/hoteles', hotelRoutes);
 router.use('/lugares-turisticos', lugarTuristicoRoutes);
 router.use('/calificaciones', calificacionRoutes);
 router.use('/recomendaciones', recomendacionRoutes);
+router.use('/cedula', cedulaRoutes);
 
 module.exports = router;

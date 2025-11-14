@@ -9,6 +9,7 @@ import Boletos from './pages/Boletos';
 import Profile from './pages/Profile';
 import Destino from './pages/Destino';
 import Recomendados from './pages/Recomendados';
+import ValidarCedula from './pages/ValidarCedula';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('token');
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path="/destino" element={<PrivateRoute><Destino /></PrivateRoute>} />
         <Route path="/recomendados" element={<PrivateRoute><Recomendados /></PrivateRoute>} />
+        <Route path="/validar-cedula" element={<ValidarCedula />} />
       </Routes>
     </div>
   );
