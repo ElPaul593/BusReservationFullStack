@@ -38,19 +38,26 @@ exports.requireAdminAccess = (req, res, next) => {
 };
 
 // Middleware para restringir acceso al dashboard de gestión de usuarios
-// Solo permite acceso a usuarios con cédulas específicas
+// Solo permite acceso a usuarios con cédulas específicas (nacionales) o pasaportes específicos (extranjeros)
 exports.requireDashboardAccess = (req, res, next) => {
-  // Lista de cédulas autorizadas para acceder al dashboard
+  // Lista de cédulas autorizadas para acceder al dashboard (usuarios nacionales)
   const authorizedCedulas = ['1722108188', '1724643976'];
+  // Lista de pasaportes autorizados (si se necesita para extranjeros)
+  const authorizedPasaportes = [];
   
   // Verificar que el usuario esté autenticado (debe pasar por authenticateToken primero)
   if (!req.user) {
     return res.status(401).json({ error: 'Usuario no autenticado' });
   }
   
-  // Verificar que la cédula del usuario esté en la lista de autorizados
+  // Verificar que la cédula o pasaporte del usuario esté en la lista de autorizados
   const userCedula = String(req.user.cedula || '').trim();
-  if (!authorizedCedulas.includes(userCedula)) {
+  const userPasaporte = String(req.user.pasaporte || '').trim();
+  
+  const isAuthorized = (userCedula && authorizedCedulas.includes(userCedula)) ||
+                       (userPasaporte && authorizedPasaportes.includes(userPasaporte));
+  
+  if (!isAuthorized) {
     return res.status(403).json({ error: 'Acceso denegado. No tienes permisos para acceder a esta sección.' });
   }
   

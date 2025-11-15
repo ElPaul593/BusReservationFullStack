@@ -3,22 +3,32 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../services/auth';
 
 export default function LoginForm() {
+  const [tipoIdentificacion, setTipoIdentificacion] = useState('cedula'); // 'cedula' o 'pasaporte'
   const [cedula, setCedula] = useState('');
+  const [pasaporte, setPasaporte] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
-  const [touched, setTouched] = useState({ cedula: false, password: false });
+  const [touched, setTouched] = useState({ identificacion: false, password: false });
   const navigate = useNavigate();
 
   const cedulaDigits = cedula.replace(/\D/g, '');
 
-  const cedulaError = useMemo(() => {
-    if (!touched.cedula) return null;
-    if (cedula.length === 0) return 'La cédula es requerida';
-    if (!/^\d+$/.test(cedula)) return 'La cédula debe contener solo dígitos';
-    if (cedula.length > 10) return 'Máximo 10 dígitos';
-    if (cedula.length < 6) return 'La cédula es muy corta';
+  const identificacionError = useMemo(() => {
+    if (!touched.identificacion) return null;
+    
+    if (tipoIdentificacion === 'cedula') {
+      if (cedula.length === 0) return 'La cédula es requerida';
+      if (!/^\d+$/.test(cedula)) return 'La cédula debe contener solo dígitos';
+      if (cedula.length > 10) return 'Máximo 10 dígitos';
+      if (cedula.length < 6) return 'La cédula es muy corta';
+    } else {
+      if (pasaporte.length === 0) return 'El pasaporte es requerido';
+      if (pasaporte.length < 6) return 'El pasaporte debe tener al menos 6 caracteres';
+      if (pasaporte.length > 20) return 'El pasaporte no puede tener más de 20 caracteres';
+    }
+    
     return null;
-  }, [cedula, touched.cedula]);
+  }, [cedula, pasaporte, tipoIdentificacion, touched.identificacion]);
 
   const passwordError = useMemo(() => {
     if (!touched.password) return null;
@@ -27,20 +37,34 @@ export default function LoginForm() {
     return null;
   }, [password, touched.password]);
 
-  const isFormValid = !cedulaError && !passwordError && cedula && password;
+  const isFormValid = !identificacionError && !passwordError && 
+    (tipoIdentificacion === 'cedula' ? cedula : pasaporte) && password;
 
   const handleCedulaChange = (e) => {
     const digitsOnly = e.target.value.replace(/\D/g, '');
     setCedula(digitsOnly.slice(0, 10));
   };
 
+  const handleTipoChange = (tipo) => {
+    setTipoIdentificacion(tipo);
+    setCedula('');
+    setPasaporte('');
+    setError(null);
+    setTouched({ identificacion: false, password: touched.password });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setTouched({ cedula: true, password: true });
+    setTouched({ identificacion: true, password: true });
     setError(null);
     if (!isFormValid) return;
+    
     try {
-      const data = await login({ cedula: cedulaDigits, password });
+      const loginData = tipoIdentificacion === 'cedula' 
+        ? { cedula: cedulaDigits, password }
+        : { pasaporte: pasaporte.trim(), password };
+      
+      const data = await login(loginData);
       localStorage.setItem('token', data.token);
       navigate('/dashboard');
     } catch (err) {
@@ -52,22 +76,71 @@ export default function LoginForm() {
     <main className="center-screen">
       <div className="card" role="dialog" aria-labelledby="login-title">
         <h2 id="login-title">Iniciar sesión</h2>
+        
+        {/* Selector de tipo de identificación */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => handleTipoChange('cedula')}
+            style={{
+              padding: '8px 16px',
+              border: '1px solid #ddd',
+              background: tipoIdentificacion === 'cedula' ? '#007bff' : '#fff',
+              color: tipoIdentificacion === 'cedula' ? '#fff' : '#333',
+              cursor: 'pointer',
+              borderRadius: '4px',
+              transition: 'all 0.2s'
+            }}
+          >
+            Cédula
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTipoChange('pasaporte')}
+            style={{
+              padding: '8px 16px',
+              border: '1px solid #ddd',
+              background: tipoIdentificacion === 'pasaporte' ? '#007bff' : '#fff',
+              color: tipoIdentificacion === 'pasaporte' ? '#fff' : '#333',
+              cursor: 'pointer',
+              borderRadius: '4px',
+              transition: 'all 0.2s'
+            }}
+          >
+            Pasaporte
+          </button>
+        </div>
+
         <form className="form-grid" onSubmit={handleSubmit} noValidate>
           <div className="field">
-            <label htmlFor="cedula">Cédula</label>
-            <input
-              id="cedula"
-              className="input"
-              inputMode="numeric"
-              pattern="\\d*"
-              value={cedula}
-              onChange={handleCedulaChange}
-              onBlur={() => setTouched((t) => ({ ...t, cedula: true }))}
-              maxLength={10}
-              placeholder="1723456789"
-              required
-            />
-            {cedulaError && <div className="error">{cedulaError}</div>}
+            <label htmlFor="identificacion">
+              {tipoIdentificacion === 'cedula' ? 'Cédula' : 'Pasaporte'}
+            </label>
+            {tipoIdentificacion === 'cedula' ? (
+              <input
+                id="identificacion"
+                className="input"
+                inputMode="numeric"
+                pattern="\\d*"
+                value={cedula}
+                onChange={handleCedulaChange}
+                onBlur={() => setTouched((t) => ({ ...t, identificacion: true }))}
+                maxLength={10}
+                placeholder="1723456789"
+                required
+              />
+            ) : (
+              <input
+                id="identificacion"
+                className="input"
+                value={pasaporte}
+                onChange={(e) => setPasaporte(e.target.value.slice(0, 20))}
+                onBlur={() => setTouched((t) => ({ ...t, identificacion: true }))}
+                placeholder="AB123456"
+                required
+              />
+            )}
+            {identificacionError && <div className="error">{identificacionError}</div>}
           </div>
 
           <div className="field">
@@ -97,7 +170,6 @@ export default function LoginForm() {
           <button className="btn btn-primary" type="submit" disabled={!isFormValid}>
             Entrar
           </button>
-
 
           {error && <div className="error">{error}</div>}
         </form>

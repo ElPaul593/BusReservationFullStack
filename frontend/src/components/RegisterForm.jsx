@@ -5,29 +5,42 @@ import { validarCedula } from '../services/cedula';
 import { PAISES } from '../constants/paises';
 
 export default function RegisterForm() {
-  const [cedula, setCedula] = useState('');
+  const [activeTab, setActiveTab] = useState('nacional'); // 'nacional' o 'extranjero'
+  
+  // Campos comunes
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [password, setPassword] = useState('');
   const [telefono, setTelefono] = useState('');
-  const [paisOrigen, setPaisOrigen] = useState('');
-  const [error, setError] = useState(null);
-  const [touched, setTouched] = useState({});
+  
+  // Campos para nacionales
+  const [cedula, setCedula] = useState('');
   const [validandoCedula, setValidandoCedula] = useState(false);
   const [cedulaValida, setCedulaValida] = useState(null);
+  
+  // Campos para extranjeros
+  const [pasaporte, setPasaporte] = useState('');
+  const [paisOrigen, setPaisOrigen] = useState('');
+  
+  const [error, setError] = useState(null);
+  const [touched, setTouched] = useState({});
   const navigate = useNavigate();
 
   const cedulaDigits = cedula.replace(/\D/g, '');
 
-  // Validar cédula ecuatoriana automáticamente
+  // Validar cédula ecuatoriana automáticamente (solo para nacionales)
   useEffect(() => {
+    if (activeTab !== 'nacional') {
+      setCedulaValida(null);
+      setValidandoCedula(false);
+      return;
+    }
+
     const validarCedulaEcuatoriana = async () => {
-      // Extraer país seleccionado y cédula de 10 dígitos
-      const paisSeleccionado = paisOrigen.trim();
       const cedulaLimpia = cedulaDigits;
       
-      // Solo validar si el país es Ecuador y la cédula tiene exactamente 10 dígitos
-      if (paisSeleccionado === 'Ecuador' && cedulaLimpia.length === 10 && /^\d{10}$/.test(cedulaLimpia)) {
+      // Solo validar si la cédula tiene exactamente 10 dígitos
+      if (cedulaLimpia.length === 10 && /^\d{10}$/.test(cedulaLimpia)) {
         setValidandoCedula(true);
         try {
           const resultado = await validarCedula(cedulaLimpia);
@@ -44,41 +57,58 @@ export default function RegisterForm() {
           setValidandoCedula(false);
         }
       } else {
-        // Resetear validación si no es Ecuador o no tiene 10 dígitos
-        if (paisSeleccionado !== 'Ecuador' || cedulaLimpia.length !== 10) {
+        if (cedulaLimpia.length !== 10) {
           setCedulaValida(null);
-          if (paisSeleccionado !== 'Ecuador') {
-            setError(null);
-          }
         }
       }
     };
 
-    // Validar después de un pequeño delay para evitar muchas peticiones
     const timeoutId = setTimeout(validarCedulaEcuatoriana, 500);
     return () => clearTimeout(timeoutId);
-  }, [cedulaDigits, paisOrigen]);
+  }, [cedulaDigits, activeTab]);
 
+  // Validaciones para nacionales
   const cedulaError = useMemo(() => {
+    if (activeTab !== 'nacional') return null;
     if (!touched.cedula) return null;
     const cedulaLimpia = cedulaDigits;
-    const paisSeleccionado = paisOrigen.trim();
     
     if (cedulaLimpia.length === 0) return 'La cédula es requerida';
     if (!/^\d+$/.test(cedulaLimpia)) return 'La cédula debe contener solo dígitos';
     if (cedulaLimpia.length > 10) return 'Máximo 10 dígitos';
     if (cedulaLimpia.length < 6) return 'La cédula es muy corta';
     
-    // Si es Ecuador y tiene 10 dígitos, verificar validación
-    if (paisSeleccionado === 'Ecuador' && cedulaLimpia.length === 10) {
+    if (cedulaLimpia.length === 10) {
       if (validandoCedula) return 'Validando cédula ecuatoriana...';
       if (cedulaValida === false) return 'La cédula ecuatoriana no es válida';
-      if (cedulaValida === true) return null; // Cédula válida, no mostrar error
+      if (cedulaValida === true) return null;
     }
     
     return null;
-  }, [cedulaDigits, touched.cedula, paisOrigen, cedulaValida, validandoCedula]);
+  }, [cedulaDigits, touched.cedula, cedulaValida, validandoCedula, activeTab]);
 
+  // Validaciones para extranjeros
+  const pasaporteError = useMemo(() => {
+    if (activeTab !== 'extranjero') return null;
+    if (!touched.pasaporte) return null;
+    const pasaporteLimpio = pasaporte.trim();
+    
+    if (pasaporteLimpio.length === 0) return 'El pasaporte es requerido';
+    if (pasaporteLimpio.length < 6) return 'El pasaporte debe tener al menos 6 caracteres';
+    if (pasaporteLimpio.length > 20) return 'El pasaporte no puede tener más de 20 caracteres';
+    
+    return null;
+  }, [pasaporte, touched.pasaporte, activeTab]);
+
+  const paisOrigenError = useMemo(() => {
+    if (activeTab !== 'extranjero') return null;
+    if (!touched.paisOrigen) return null;
+    if (!paisOrigen.trim()) return 'El país de origen es requerido';
+    if (paisOrigen.trim() === 'Ecuador') return 'Seleccione un país diferente a Ecuador';
+    return null;
+  }, [paisOrigen, touched.paisOrigen, activeTab]);
+
+  // Validaciones comunes
   const nombreError = useMemo(() => {
     if (!touched.nombre) return null;
     if (!nombre.trim()) return 'El nombre es requerido';
@@ -105,17 +135,20 @@ export default function RegisterForm() {
     return null;
   }, [telefono, touched.telefono]);
 
-  const paisOrigenError = useMemo(() => {
-    if (!touched.paisOrigen) return null;
-    if (!paisOrigen.trim()) return 'El país de origen es requerido';
-    return null;
-  }, [paisOrigen, touched.paisOrigen]);
-
-  const isFormValid =
-    !cedulaError && !nombreError && !apellidoError && !passwordError && !telefonoError && !paisOrigenError &&
-    cedulaDigits && nombre && apellido && password && telefono && paisOrigen &&
-    // Si es Ecuador, la cédula debe estar validada y ser válida
-    (paisOrigen.trim() !== 'Ecuador' || (cedulaDigits.length === 10 && cedulaValida === true));
+  // Validación del formulario según la pestaña activa
+  const isFormValid = useMemo(() => {
+    const camposComunes = !nombreError && !apellidoError && !passwordError && !telefonoError &&
+      nombre && apellido && password && telefono;
+    
+    if (activeTab === 'nacional') {
+      return camposComunes && !cedulaError && cedulaDigits &&
+        (cedulaDigits.length === 10 && cedulaValida === true);
+    } else {
+      return camposComunes && !pasaporteError && !paisOrigenError &&
+        pasaporte.trim() && paisOrigen.trim() && paisOrigen.trim() !== 'Ecuador';
+    }
+  }, [activeTab, nombreError, apellidoError, passwordError, telefonoError, cedulaError, pasaporteError, paisOrigenError,
+      nombre, apellido, password, telefono, cedulaDigits, cedulaValida, pasaporte, paisOrigen]);
 
   const handleCedulaChange = (e) => {
     const digitsOnly = e.target.value.replace(/\D/g, '');
@@ -124,16 +157,19 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setTouched({ cedula: true, nombre: true, apellido: true, password: true, telefono: true, paisOrigen: true });
+    
+    // Marcar todos los campos como tocados
+    if (activeTab === 'nacional') {
+      setTouched({ cedula: true, nombre: true, apellido: true, password: true, telefono: true });
+    } else {
+      setTouched({ pasaporte: true, paisOrigen: true, nombre: true, apellido: true, password: true, telefono: true });
+    }
+    
     setError(null);
     
-    // Extraer país seleccionado y cédula limpia
-    const paisSeleccionado = paisOrigen.trim();
-    const cedulaLimpia = cedulaDigits;
-    
-    // BLOQUEAR: Validar cédula ecuatoriana antes de enviar - NO PERMITIR REGISTRO SI NO ES VÁLIDA
-    if (paisSeleccionado === 'Ecuador') {
-      if (cedulaLimpia.length !== 10) {
+    if (activeTab === 'nacional') {
+      // Validaciones para nacionales
+      if (cedulaDigits.length !== 10) {
         setError('La cédula ecuatoriana debe tener exactamente 10 dígitos.');
         return;
       }
@@ -153,77 +189,202 @@ export default function RegisterForm() {
         return;
       }
       
-      // Solo permitir si cedulaValida === true
-      if (cedulaValida !== true) {
-        setError('La cédula ecuatoriana debe ser validada antes de continuar.');
+      if (!isFormValid) {
+        setError('Por favor, complete todos los campos correctamente.');
         return;
       }
-    }
-    
-    if (!isFormValid) {
-      setError('Por favor, complete todos los campos correctamente.');
-      return;
-    }
-    
-    try {
-      await register({
-        cedula: cedulaDigits,
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
-        telefono: telefono.trim(),
-        paisOrigen: paisOrigen.trim(),
-        password
-      });
-      const data = await login({ cedula: cedulaDigits, password });
-      localStorage.setItem('token', data.token);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err?.response?.data?.error || err.message || 'Error al registrar');
+      
+      try {
+        await register({
+          cedula: cedulaDigits,
+          nombre: nombre.trim(),
+          apellido: apellido.trim(),
+          telefono: telefono.trim(),
+          paisOrigen: 'Ecuador',
+          password
+        });
+        const data = await login({ cedula: cedulaDigits, password });
+        localStorage.setItem('token', data.token);
+        navigate('/dashboard');
+      } catch (err) {
+        setError(err?.response?.data?.error || err.message || 'Error al registrar');
+      }
+    } else {
+      // Validaciones para extranjeros
+      if (!pasaporte.trim()) {
+        setError('El pasaporte es requerido.');
+        return;
+      }
+      
+      if (!paisOrigen.trim() || paisOrigen.trim() === 'Ecuador') {
+        setError('Debe seleccionar un país de origen válido (diferente a Ecuador).');
+        return;
+      }
+      
+      if (!isFormValid) {
+        setError('Por favor, complete todos los campos correctamente.');
+        return;
+      }
+      
+      try {
+        await register({
+          pasaporte: pasaporte.trim(),
+          nombre: nombre.trim(),
+          apellido: apellido.trim(),
+          telefono: telefono.trim(),
+          paisOrigen: paisOrigen.trim(),
+          password
+        });
+        const data = await login({ pasaporte: pasaporte.trim(), password });
+        localStorage.setItem('token', data.token);
+        navigate('/dashboard');
+      } catch (err) {
+        setError(err?.response?.data?.error || err.message || 'Error al registrar');
+      }
     }
   };
+
+  // Limpiar campos al cambiar de pestaña
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setError(null);
+    if (tab === 'nacional') {
+      setPasaporte('');
+      setPaisOrigen('');
+      setTouched((t) => ({ ...t, pasaporte: false, paisOrigen: false }));
+    } else {
+      setCedula('');
+      setCedulaValida(null);
+      setValidandoCedula(false);
+      setTouched((t) => ({ ...t, cedula: false }));
+    }
+  };
+
+  // Filtrar países para extranjeros (excluir Ecuador)
+  const paisesExtranjeros = PAISES.filter(p => p !== 'Ecuador');
 
   return (
     <main className="center-screen">
       <div className="card" role="dialog" aria-labelledby="reg-title" style={{maxWidth: 760}}>
         <h2 id="reg-title">Registro de usuario</h2>
-        <form onSubmit={handleSubmit} noValidate className="form-grid" style={{gridTemplateColumns:'1fr', gap: 14}}>
-          <div className="row-between" style={{gap:14, flexWrap:'wrap'}}>
-            <div className="field" style={{flex:'1 1 240px'}}>
-              <label htmlFor="cedula">
-                Cédula
-                {paisOrigen.trim() === 'Ecuador' && cedulaDigits.length === 10 && (
-                  <span style={{marginLeft: '8px', fontSize: '0.85em'}}>
-                    {validandoCedula && '⏳ Validando...'}
-                    {!validandoCedula && cedulaValida === true && '✓ Válida'}
-                    {!validandoCedula && cedulaValida === false && '✗ Inválida'}
-                  </span>
-                )}
-              </label>
-              <input
-                id="cedula"
-                className="input"
-                inputMode="numeric"
-                pattern="\\d*"
-                value={cedula}
-                onChange={handleCedulaChange}
-                onBlur={() => setTouched((t) => ({ ...t, cedula: true }))}
-                maxLength={10}
-                placeholder="1723456789"
-                required
-                style={{
-                  borderColor: paisOrigen.trim() === 'Ecuador' && cedulaDigits.length === 10
-                    ? (cedulaValida === true ? '#28a745' : cedulaValida === false ? '#dc3545' : undefined)
-                    : undefined
-                }}
-              />
-              {cedulaError && <div className="error">{cedulaError}</div>}
-              {paisOrigen.trim() === 'Ecuador' && cedulaDigits.length === 10 && !cedulaError && cedulaValida === true && (
-                <div style={{color: '#28a745', fontSize: '0.85em', marginTop: '4px'}}>
-                  ✓ Cédula ecuatoriana válida
-                </div>
-              )}
-            </div>
+        
+        {/* Pestañas */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid #e0e0e0' }}>
+          <button
+            type="button"
+            onClick={() => handleTabChange('nacional')}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              borderBottom: activeTab === 'nacional' ? '3px solid #007bff' : '3px solid transparent',
+              color: activeTab === 'nacional' ? '#007bff' : '#666',
+              fontWeight: activeTab === 'nacional' ? '600' : '400',
+              transition: 'all 0.2s'
+            }}
+          >
+            Usuarios Nacionales (Ecuador)
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTabChange('extranjero')}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              borderBottom: activeTab === 'extranjero' ? '3px solid #007bff' : '3px solid transparent',
+              color: activeTab === 'extranjero' ? '#007bff' : '#666',
+              fontWeight: activeTab === 'extranjero' ? '600' : '400',
+              transition: 'all 0.2s'
+            }}
+          >
+            Extranjeros
+          </button>
+        </div>
 
+        <form onSubmit={handleSubmit} noValidate className="form-grid" style={{gridTemplateColumns:'1fr', gap: 14}}>
+          {activeTab === 'nacional' ? (
+            <>
+              {/* Formulario para Nacionales */}
+              <div className="field">
+                <label htmlFor="cedula">
+                  Cédula
+                  {cedulaDigits.length === 10 && (
+                    <span style={{marginLeft: '8px', fontSize: '0.85em'}}>
+                      {validandoCedula && '⏳ Validando...'}
+                      {!validandoCedula && cedulaValida === true && '✓ Válida'}
+                      {!validandoCedula && cedulaValida === false && '✗ Inválida'}
+                    </span>
+                  )}
+                </label>
+                <input
+                  id="cedula"
+                  className="input"
+                  inputMode="numeric"
+                  pattern="\\d*"
+                  value={cedula}
+                  onChange={handleCedulaChange}
+                  onBlur={() => setTouched((t) => ({ ...t, cedula: true }))}
+                  maxLength={10}
+                  placeholder="1723456789"
+                  required
+                  style={{
+                    borderColor: cedulaDigits.length === 10
+                      ? (cedulaValida === true ? '#28a745' : cedulaValida === false ? '#dc3545' : undefined)
+                      : undefined
+                  }}
+                />
+                {cedulaError && <div className="error">{cedulaError}</div>}
+                {cedulaDigits.length === 10 && !cedulaError && cedulaValida === true && (
+                  <div style={{color: '#28a745', fontSize: '0.85em', marginTop: '4px'}}>
+                    ✓ Cédula ecuatoriana válida
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Formulario para Extranjeros */}
+              <div className="row-between" style={{gap:14, flexWrap:'wrap'}}>
+                <div className="field" style={{flex:'1 1 240px'}}>
+                  <label htmlFor="pasaporte">Pasaporte</label>
+                  <input
+                    id="pasaporte"
+                    className="input"
+                    value={pasaporte}
+                    onChange={(e) => setPasaporte(e.target.value.slice(0, 20))}
+                    onBlur={() => setTouched((t) => ({ ...t, pasaporte: true }))}
+                    placeholder="AB123456"
+                    required
+                  />
+                  {pasaporteError && <div className="error">{pasaporteError}</div>}
+                </div>
+
+                <div className="field" style={{flex:'1 1 240px'}}>
+                  <label htmlFor="paisOrigen">País de Origen</label>
+                  <select
+                    id="paisOrigen"
+                    className="input"
+                    value={paisOrigen}
+                    onChange={(e) => setPaisOrigen(e.target.value)}
+                    onBlur={() => setTouched((t) => ({ ...t, paisOrigen: true }))}
+                    required
+                  >
+                    <option value="">Seleccione un país</option>
+                    {paisesExtranjeros.map((pais, index) => (
+                      <option key={index} value={pais}>{pais}</option>
+                    ))}
+                  </select>
+                  {paisOrigenError && <div className="error">{paisOrigenError}</div>}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Campos comunes */}
+          <div className="row-between" style={{gap:14, flexWrap:'wrap'}}>
             <div className="field" style={{flex:'1 1 240px'}}>
               <label htmlFor="nombre">Nombre</label>
               <input
@@ -285,34 +446,15 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          <div className="field">
-            <label htmlFor="paisOrigen">País de Origen</label>
-            <select
-              id="paisOrigen"
-              className="input"
-              value={paisOrigen}
-              onChange={(e) => setPaisOrigen(e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, paisOrigen: true }))}
-              required
-            >
-              <option value="">Seleccione un país</option>
-              {PAISES.map((pais, index) => (
-                <option key={index} value={pais}>{pais}</option>
-              ))}
-            </select>
-            {paisOrigenError && <div className="error">{paisOrigenError}</div>}
-          </div>
-
           <button 
             className="btn btn-primary" 
             type="submit" 
             disabled={
               !isFormValid || 
-              (paisOrigen.trim() === 'Ecuador' && cedulaDigits.length === 10 && cedulaValida !== true) ||
-              validandoCedula
+              (activeTab === 'nacional' && (cedulaDigits.length !== 10 || cedulaValida !== true || validandoCedula))
             }
           >
-            {validandoCedula ? 'Validando cédula...' : 'Crear cuenta'}
+            {activeTab === 'nacional' && validandoCedula ? 'Validando cédula...' : 'Crear cuenta'}
           </button>
 
           {error && <div className="error">{error}</div>}

@@ -2,7 +2,23 @@ const mongoose = require('mongoose');
 
 
 const UserSchema = new mongoose.Schema({
-  cedula: { type: String, required: true, unique: true, minlength: 6, maxlength: 10, match: [/^\d+$/, 'cedula must be digits only'] },
+  cedula: { 
+    type: String, 
+    required: function() { return !this.pasaporte; }, 
+    unique: true, 
+    sparse: true,
+    minlength: 6, 
+    maxlength: 10, 
+    match: [/^\d+$/, 'cedula must be digits only'] 
+  },
+  pasaporte: { 
+    type: String, 
+    required: function() { return !this.cedula; },
+    unique: true,
+    sparse: true,
+    minlength: 6,
+    maxlength: 20
+  },
   nombre: { type: String, required: true },
   apellido: { type: String, required: true },
   telefono: { 
@@ -18,6 +34,8 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Index para busquedas por cédula
-UserSchema.index({ cedula: 1 }, { unique: true });
+UserSchema.index({ cedula: 1 }, { unique: true, sparse: true });
+// Index para busquedas por pasaporte
+UserSchema.index({ pasaporte: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -1,8 +1,8 @@
 import api from './api';
 
-export async function login({ cedula, password }) {
+export async function login({ cedula, pasaporte, password }) {
   try {
-    const resp = await api.post('/auth/login', { cedula, password });
+    const resp = await api.post('/auth/login', { cedula, pasaporte, password });
     return resp.data;
   } catch (err) {
     
