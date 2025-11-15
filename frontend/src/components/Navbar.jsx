@@ -39,6 +39,9 @@ export default function Navbar() {
               <Link to="/boletos" className={`navbar-link ${isActive('/boletos')}`}>
                 Boletos
               </Link>
+              <Link to="/rutas" className={`navbar-link ${isActive('/rutas')}`}>
+                Rutas
+              </Link>
               <Link to="/reservas" className={`navbar-link ${isActive('/reservas')}`}>
                 Mis Reservas
               </Link>
@@ -100,6 +103,13 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Boletos
+              </Link>
+              <Link 
+                to="/rutas" 
+                className={`mobile-link ${isActive('/rutas')}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Rutas
               </Link>
               <Link 
                 to="/reservas" 

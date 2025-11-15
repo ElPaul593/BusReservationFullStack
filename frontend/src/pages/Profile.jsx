@@ -167,10 +167,17 @@ export default function Profile() {
 
         {!editing ? (
           <div className="profile-info">
-            <div className="info-group">
-              <label>Cédula:</label>
-              <span>{user.cedula}</span>
-            </div>
+            {user.cedula ? (
+              <div className="info-group">
+                <label>Cédula:</label>
+                <span>{user.cedula}</span>
+              </div>
+            ) : (
+              <div className="info-group">
+                <label>Pasaporte:</label>
+                <span>{user.pasaporte || 'No especificado'}</span>
+              </div>
+            )}
             <div className="info-group">
               <label>Nombre:</label>
               <span>{user.nombre}</span>
@@ -194,16 +201,29 @@ export default function Profile() {
           </div>
         ) : (
           <form onSubmit={handleUpdateProfile} className="profile-form">
-            <div className="form-group">
-              <label>Cédula:</label>
-              <input 
-                type="text" 
-                value={user.cedula} 
-                disabled 
-                className="input-disabled"
-              />
-              <small>La cédula no se puede modificar</small>
-            </div>
+            {user.cedula ? (
+              <div className="form-group">
+                <label>Cédula:</label>
+                <input 
+                  type="text" 
+                  value={user.cedula} 
+                  disabled 
+                  className="input-disabled"
+                />
+                <small>La cédula no se puede modificar</small>
+              </div>
+            ) : (
+              <div className="form-group">
+                <label>Pasaporte:</label>
+                <input 
+                  type="text" 
+                  value={user.pasaporte || ''} 
+                  disabled 
+                  className="input-disabled"
+                />
+                <small>El pasaporte no se puede modificar</small>
+              </div>
+            )}
             
             <div className="form-group">
               <label>País de origen:</label>

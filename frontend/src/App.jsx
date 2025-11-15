@@ -6,6 +6,7 @@ import Login from './components/LoginForm';
 import Register from './components/RegisterForm';
 import Dashboard from './pages/Dashboard';
 import Boletos from './pages/Boletos';
+import Rutas from './pages/Rutas';
 import Profile from './pages/Profile';
 import Destino from './pages/Destino';
 import Recomendados from './pages/Recomendados';
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/boletos" element={<PrivateRoute><Boletos /></PrivateRoute>} />
+        <Route path="/rutas" element={<PrivateRoute><Rutas /></PrivateRoute>} />
         <Route path="/reservas" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path="/destino" element={<PrivateRoute><Destino /></PrivateRoute>} />
