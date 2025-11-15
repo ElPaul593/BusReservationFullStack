@@ -75,19 +75,18 @@ export default function Dashboard() {
           setAuthorized(true);
           loadUsers();
         } else {
-          setError('Acceso denegado. No tienes permisos para acceder a esta sección.');
-          setLoading(false);
-
-          setTimeout(() => {
-            navigate('/demo');
-          }, 2000);
+          // Redirigir inmediatamente sin mostrar mensaje
+          navigate('/demo', { replace: true });
+          return;
         }
       } catch (err) {
-        setError('Error al verificar permisos: ' + err.message);
-        setLoading(false);
-        if (err.message.includes('Token') || err.message.includes('autenticado')) {
+        // Si hay error de autenticación, redirigir a login
+        if (err.message.includes('Token') || err.message.includes('autenticado') || err.message.includes('Acceso denegado')) {
           localStorage.removeItem('token');
-          navigate('/login');
+          navigate('/login', { replace: true });
+        } else {
+          // Para otros errores, también redirigir
+          navigate('/demo', { replace: true });
         }
       }
     };
@@ -170,19 +169,9 @@ export default function Dashboard() {
     );
   }
 
-  // Si no está autorizado para gestión de usuarios, mostrar mensaje de error
-  if (!authorized) {
-    return (
-      <div className="dashboard-container">
-        <div className="container">
-          <div className="error-message" style={{ textAlign: 'center', padding: '2rem' }}>
-            <h2>Acceso Denegado</h2>
-            <p>No tienes permisos para acceder a esta sección.</p>
-            <p>Serás redirigido en breve...</p>
-          </div>
-        </div>
-      </div>
-    );
+  // Si no está autorizado para gestión de usuarios, no mostrar nada (ya fue redirigido)
+  if (!authorized && isUserManagementDashboard) {
+    return null; // No mostrar nada, la redirección ya se hizo
   }
 
   return (
