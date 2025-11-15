@@ -14,9 +14,14 @@ exports.register = async ({ cedula, pasaporte, nombre, apellido, telefono, passw
     throw new Error('Todos los campos son requeridos');
 
   const paisSeleccionado = String(paisOrigen).trim();
+  
+  // Normalizar teléfono: solo dígitos, sin símbolos como +
+  const telefonoLimpio = String(telefono).replace(/\D/g, '').slice(0, 15);
+  if (telefonoLimpio.length < 10) {
+    throw new Error('El teléfono debe tener al menos 10 dígitos');
+  }
 
-
-  const assignedRole = 'user';
+  const assignedRole = 'USER';
 
 
   if (paisSeleccionado === 'Ecuador') {
@@ -40,7 +45,7 @@ exports.register = async ({ cedula, pasaporte, nombre, apellido, telefono, passw
       cedula: cedulaLimpia,
       nombre,
       apellido,
-      telefono,
+      telefono: telefonoLimpio,
       password: hashed,
       paisOrigen: paisSeleccionado,
       role: assignedRole
@@ -67,7 +72,7 @@ exports.register = async ({ cedula, pasaporte, nombre, apellido, telefono, passw
       pasaporte: pasaporteLimpio,
       nombre,
       apellido,
-      telefono,
+      telefono: telefonoLimpio,
       password: hashed,
       paisOrigen: paisSeleccionado,
       role: assignedRole

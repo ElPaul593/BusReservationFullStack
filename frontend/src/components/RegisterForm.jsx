@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { register, login } from '../services/auth';
 import { validarCedula } from '../services/cedula';
 import { PAISES } from '../constants/paises';
+import { getCodigoTelefonico } from '../constants/codigosTelefonicos';
 
 export default function RegisterForm() {
   const [activeTab, setActiveTab] = useState('nacional'); // 'nacional' o 'extranjero'
@@ -21,6 +22,7 @@ export default function RegisterForm() {
   // Campos para extranjeros
   const [pasaporte, setPasaporte] = useState('');
   const [paisOrigen, setPaisOrigen] = useState('');
+  const [codigoTelefonico, setCodigoTelefonico] = useState('+593'); // Por defecto Ecuador
   
   const [error, setError] = useState(null);
   const [touched, setTouched] = useState({});
@@ -130,15 +132,22 @@ export default function RegisterForm() {
 
   const telefonoError = useMemo(() => {
     if (!touched.telefono) return null;
+    // Si es extranjero y no hay país seleccionado, no validar teléfono aún
+    if (activeTab === 'extranjero' && !paisOrigen) return null;
     if (!telefono.trim()) return 'El teléfono es requerido';
     if (!/^\d+$/.test(telefono.trim())) return 'El teléfono debe contener solo dígitos';
     return null;
-  }, [telefono, touched.telefono]);
+  }, [telefono, touched.telefono, activeTab, paisOrigen]);
 
   // Validación del formulario según la pestaña activa
   const isFormValid = useMemo(() => {
-    const camposComunes = !nombreError && !apellidoError && !passwordError && !telefonoError &&
-      nombre && apellido && password && telefono;
+    // Para extranjeros, el teléfono solo es requerido si hay país seleccionado
+    const telefonoValido = activeTab === 'extranjero' && !paisOrigen 
+      ? true 
+      : (!telefonoError && telefono.trim());
+    
+    const camposComunes = !nombreError && !apellidoError && !passwordError && telefonoValido &&
+      nombre && apellido && password && (activeTab === 'extranjero' && !paisOrigen ? true : telefono);
     
     if (activeTab === 'nacional') {
       return camposComunes && !cedulaError && cedulaDigits &&
@@ -195,11 +204,14 @@ export default function RegisterForm() {
       }
       
       try {
+        // Combinar código telefónico con el número (Ecuador 593, sin el +)
+        const codigoSinMas = '593'; // Ecuador sin el +
+        const telefonoCompleto = codigoSinMas + telefono.trim();
         await register({
           cedula: cedulaDigits,
           nombre: nombre.trim(),
           apellido: apellido.trim(),
-          telefono: telefono.trim(),
+          telefono: telefonoCompleto,
           paisOrigen: 'Ecuador',
           password
         });
@@ -227,11 +239,14 @@ export default function RegisterForm() {
       }
       
       try {
+        // Combinar código telefónico con el número (solo dígitos, sin el +)
+        const codigoSinMas = codigoTelefonico.replace('+', ''); // Quitar el símbolo +
+        const telefonoCompleto = codigoSinMas + telefono.trim();
         await register({
           pasaporte: pasaporte.trim(),
           nombre: nombre.trim(),
           apellido: apellido.trim(),
-          telefono: telefono.trim(),
+          telefono: telefonoCompleto,
           paisOrigen: paisOrigen.trim(),
           password
         });
@@ -244,6 +259,16 @@ export default function RegisterForm() {
     }
   };
 
+  // Actualizar código telefónico cuando cambie el país de origen
+  useEffect(() => {
+    if (activeTab === 'extranjero' && paisOrigen) {
+      const codigo = getCodigoTelefonico(paisOrigen);
+      setCodigoTelefonico(codigo);
+    } else if (activeTab === 'nacional') {
+      setCodigoTelefonico('+593'); // Ecuador
+    }
+  }, [paisOrigen, activeTab]);
+
   // Limpiar campos al cambiar de pestaña
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -251,6 +276,7 @@ export default function RegisterForm() {
     if (tab === 'nacional') {
       setPasaporte('');
       setPaisOrigen('');
+      setCodigoTelefonico('+593'); // Ecuador
       setTouched((t) => ({ ...t, pasaporte: false, paisOrigen: false }));
     } else {
       setCedula('');
@@ -417,16 +443,71 @@ export default function RegisterForm() {
           <div className="row-between" style={{gap:14, flexWrap:'wrap'}}>
             <div className="field" style={{flex:'1 1 240px'}}>
               <label htmlFor="telefono">Teléfono</label>
-              <input
-                id="telefono"
-                className="input"
-                inputMode="numeric"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value.replace(/\D/g, '').slice(0, 15))}
-                onBlur={() => setTouched((t) => ({ ...t, telefono: true }))}
-                placeholder="0999999999"
-                required
-              />
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+                {activeTab === 'extranjero' && paisOrigen ? (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 12px',
+                    background: '#f5f5f5',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    borderTopRightRadius: '0',
+                    borderBottomRightRadius: '0',
+                    borderRight: 'none',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#333',
+                    minWidth: '60px',
+                    justifyContent: 'center'
+                  }}>
+                    {codigoTelefonico}
+                  </div>
+                ) : activeTab === 'nacional' ? (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 12px',
+                    background: '#f5f5f5',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    borderTopRightRadius: '0',
+                    borderBottomRightRadius: '0',
+                    borderRight: 'none',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#333',
+                    minWidth: '60px',
+                    justifyContent: 'center'
+                  }}>
+                    +593
+                  </div>
+                ) : null}
+                <input
+                  id="telefono"
+                  className="input"
+                  inputMode="numeric"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value.replace(/\D/g, '').slice(0, 15))}
+                  onBlur={() => setTouched((t) => ({ ...t, telefono: true }))}
+                  placeholder={activeTab === 'extranjero' ? (paisOrigen ? "1234567890" : "Seleccione país primero") : "0999999999"}
+                  required
+                  disabled={activeTab === 'extranjero' && !paisOrigen}
+                  style={{
+                    flex: 1,
+                    borderTopLeftRadius: (activeTab === 'extranjero' && paisOrigen) || activeTab === 'nacional' ? '0' : '4px',
+                    borderBottomLeftRadius: (activeTab === 'extranjero' && paisOrigen) || activeTab === 'nacional' ? '0' : '4px',
+                    borderLeft: (activeTab === 'extranjero' && paisOrigen) || activeTab === 'nacional' ? 'none' : '1px solid #ddd',
+                    opacity: activeTab === 'extranjero' && !paisOrigen ? 0.6 : 1,
+                    cursor: activeTab === 'extranjero' && !paisOrigen ? 'not-allowed' : 'text'
+                  }}
+                />
+              </div>
+              {activeTab === 'extranjero' && !paisOrigen && (
+                <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
+                  ⓘ Seleccione un país de origen para habilitar el campo de teléfono
+                </div>
+              )}
               {telefonoError && <div className="error">{telefonoError}</div>}
             </div>
 
