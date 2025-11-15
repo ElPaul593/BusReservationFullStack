@@ -11,7 +11,12 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const reserva = await ReservaService.create(req.body);
+    const data = { 
+      ...req.body, 
+      usuario: req.user.id 
+    };
+
+    const reserva = await ReservaService.create(data);
     res.status(201).json(reserva);
   } catch (err) {
     res.status(400).json({ error: err.message });

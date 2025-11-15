@@ -1,10 +1,5 @@
 const CedulaService = require('../services/cedulaService');
 
-/**
- * Valida una cédula ecuatoriana
- * POST /api/cedula/validar
- * Body: { cedula: "1234567890" }
- */
 exports.validar = async (req, res) => {
   try {
     const { cedula } = req.body;
@@ -31,4 +26,3 @@ exports.validar = async (req, res) => {
     });
   }
 };
-
