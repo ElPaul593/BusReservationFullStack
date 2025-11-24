@@ -8,6 +8,7 @@ router.get('/:id', lugarTuristicoController.getById);
 router.post('/', authenticateToken, requireAdminAccess, lugarTuristicoController.create);
 router.put('/:id', authenticateToken, requireAdminAccess, lugarTuristicoController.update);
 router.delete('/:id', authenticateToken, requireAdminAccess, lugarTuristicoController.delete);
+router.post('/seed', authenticateToken, requireAdminAccess, lugarTuristicoController.seedLugaresTuristicos);
 
 module.exports = router;
 

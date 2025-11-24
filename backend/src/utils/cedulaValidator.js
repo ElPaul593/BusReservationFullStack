@@ -14,7 +14,7 @@ function validarCedulaEcuatoriana(cedula) {
     return false;
   }
 
-  // Verificar que los dos primeros dígitos (provincia) estén entre 01 y 24
+  // Verificar que los dos primeros dígitos provincia estén entre 01 y 24
   const provincia = parseInt(cedulaStr.substring(0, 2), 10);
   if (provincia < 1 || provincia > 24) {
     return false;

@@ -5,7 +5,23 @@ exports.findAll = async (filters = {}) => {
 };
 
 exports.findByCiudad = async (ciudad) => {
-  return LugarTuristico.find({ ciudad }).sort({ createdAt: -1 }).lean();
+  // Búsqueda case-insensitive y que ignore espacios al inicio/final
+  const ciudadNormalizada = ciudad ? ciudad.trim() : '';
+  if (!ciudadNormalizada) {
+    return [];
+  }
+  
+  // Escapar caracteres especiales para regex
+  const ciudadEscapada = ciudadNormalizada.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  
+  // Usar expresión regular para búsqueda case-insensitive
+  const lugares = await LugarTuristico.find({ 
+    ciudad: { $regex: new RegExp(`^${ciudadEscapada}$`, 'i') }
+  }).sort({ createdAt: -1 }).lean();
+  
+  console.log(`Buscando lugares para ciudad: "${ciudadNormalizada}", encontrados: ${lugares.length}`);
+  
+  return lugares;
 };
 
 exports.findById = async (id) => {

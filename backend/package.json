@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "lint": "eslint . --ext .js,.mjs"
+    "lint": "eslint . --ext .js,.mjs",
+    "seed": "node src/scripts/populateData.js",
+    "populate": "node src/scripts/populateData.js"
   },
   "engines": {
     "node": ">=18"

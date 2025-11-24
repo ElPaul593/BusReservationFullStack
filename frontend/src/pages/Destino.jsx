@@ -36,17 +36,32 @@ export default function Destino() {
   const loadData = async () => {
     try {
       setLoading(true);
+      const ciudadNormalizada = ciudad.trim();
+      console.log('Buscando lugares turísticos para ciudad:', ciudadNormalizada);
+      
       const [hotelesData, lugaresData] = await Promise.all([
-        getHoteles(ciudad),
-        getLugaresTuristicos(ciudad)
+        getHoteles(ciudadNormalizada).catch((err) => {
+          console.error('Error obteniendo hoteles:', err);
+          return [];
+        }),
+        getLugaresTuristicos(ciudadNormalizada).catch((err) => {
+          console.error('Error obteniendo lugares turísticos:', err);
+          return [];
+        })
       ]);
-      setHoteles(hotelesData);
-      setLugares(lugaresData);
+      
+      console.log('Hoteles recibidos:', hotelesData);
+      console.log('Lugares turísticos recibidos:', lugaresData);
+      
+      setHoteles(Array.isArray(hotelesData) ? hotelesData : []);
+      setLugares(Array.isArray(lugaresData) ? lugaresData : []);
       
       // Cargar calificaciones para todos los items
       await loadCalificaciones();
     } catch (err) {
       console.error('Error cargando datos:', err);
+      setHoteles([]);
+      setLugares([]);
     } finally {
       setLoading(false);
     }
@@ -171,7 +186,12 @@ export default function Destino() {
       {activeTab === 'lugares' && (
         <div className="items-grid">
           {lugares.length === 0 ? (
-            <p>No hay lugares turísticos disponibles en {ciudad}</p>
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <p>No hay lugares turísticos disponibles en {ciudad}</p>
+              <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '1rem' }}>
+                Si eres administrador, asegúrate de poblar la base de datos usando el endpoint: POST /api/lugares-turisticos/seed
+              </p>
+            </div>
           ) : (
             lugares.map(lugar => {
               const califData = calificaciones[`lugarTuristico-${lugar._id}`] || { promedio: 0, calificaciones: [] };

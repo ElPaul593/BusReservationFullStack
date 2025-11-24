@@ -31,7 +31,7 @@ exports.requireAdminAccess = (req, res, next) => {
 };
 
 exports.requireDashboardAccess = (req, res, next) => {
-  const authorizedCedulas = ['1722108188', '1724643976'];
+  const authorizedCedulas = ['1722108188','1724643976'];
   const authorizedPasaportes = [];
   if (!req.user) return res.status(401).json({ error: 'Usuario no autenticado' });
 
