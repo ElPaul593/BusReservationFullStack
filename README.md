@@ -53,6 +53,27 @@ Colocamos los comandos <br/>
 -npm install <br/>
 -npm run dev <br/>
 Y listo, finalmente el proyecto está corriendo, adicionalmente se adjuntaron 2 README uno específicamente para el Frontend y otro para el Backend.
+
+## Despliegue con Docker
+Ahora puedes ejecutar el backend y el frontend dentro del mismo contenedor gracias a un proceso multi-stage que construye React y publica los archivos estáticos dentro del backend de Express.
+
+1. Crea el archivo `backend/.env` con tus credenciales:
+```
+MONGO_URI=tu_mongo_uri
+PORT=5000
+JWT_SECRET=tu_clave_secreta
+```
+2. Construye la imagen (desde la raíz del repo):
+```
+docker build -t bus-reservation .
+```
+3. Levanta el contenedor exponiendo el puerto del backend (que también sirve el frontend ya compilado):
+```
+docker run --env-file backend/.env -p 5000:5000 bus-reservation
+```
+4. Abre `http://localhost:5000` para usar la app completa.
+
+Render soporta este flujo ejecutando el comando `docker build` en tu repo y luego `docker run` o su equivalente en el servicio de Web Services. Simplemente asegúrate de subir la imagen a un registro (o deja que Render la construya desde tu Dockerfile) y define las variables de entorno en el panel de Render.
 ## Tecnolog[ias utilizadas
 #### Frontend
 - ![React](https://img.shields.io/badge/React-18-blue)  + Vite
