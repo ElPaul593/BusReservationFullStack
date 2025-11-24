@@ -2,15 +2,15 @@ require('dotenv').config();
 const http = require('http');
 const app = require('./app');
 
-const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || '0.0.0.0';
+// Render SIEMPRE asigna un puerto dinámico
+const PORT = process.env.PORT;
+
 const server = http.createServer(app);
 
 server.on('error', (err) => {
-  console.error('Server error:', err && err.message ? err.message : err);
-  process.exit(1);
+  console.error('Server error:', err?.message || err);
 });
 
-server.listen(PORT, HOST, () => {
-  console.log(`Server listening on ${HOST}:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server running on port: ${PORT}`);
 });
