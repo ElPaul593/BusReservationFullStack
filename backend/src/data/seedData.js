@@ -1244,189 +1244,381 @@ const lugaresTuristicos = [
   }
 ];
 
+// Función helper para obtener precio y duración basado en ciudades
+function getPrecioYDuracion(from, to) {
+  // Definir distancias aproximadas y precios
+  const rutas = {
+    // Rutas largas (Quito/Guayaquil a otras ciudades principales)
+    'Quito-Guayaquil': { price: 18, duration: '8 horas' },
+    'Guayaquil-Quito': { price: 18, duration: '8 horas' },
+    'Quito-Cuenca': { price: 16, duration: '9 horas' },
+    'Cuenca-Quito': { price: 16, duration: '9 horas' },
+    'Guayaquil-Cuenca': { price: 12, duration: '4 horas' },
+    'Cuenca-Guayaquil': { price: 12, duration: '4 horas' },
+    
+    // Rutas medianas desde Quito
+    'Quito-Ambato': { price: 5, duration: '2 horas' },
+    'Ambato-Quito': { price: 5, duration: '2 horas' },
+    'Quito-Ibarra': { price: 6, duration: '2.5 horas' },
+    'Ibarra-Quito': { price: 6, duration: '2.5 horas' },
+    'Quito-Latacunga': { price: 4, duration: '1.5 horas' },
+    'Latacunga-Quito': { price: 4, duration: '1.5 horas' },
+    'Quito-Riobamba': { price: 7, duration: '3 horas' },
+    'Riobamba-Quito': { price: 7, duration: '3 horas' },
+    'Quito-Santo Domingo': { price: 8, duration: '3.5 horas' },
+    'Santo Domingo-Quito': { price: 8, duration: '3.5 horas' },
+    'Quito-Guaranda': { price: 6, duration: '2.5 horas' },
+    'Guaranda-Quito': { price: 6, duration: '2.5 horas' },
+    'Quito-Tulcán': { price: 9, duration: '4 horas' },
+    'Tulcán-Quito': { price: 9, duration: '4 horas' },
+    'Quito-Esmeraldas': { price: 10, duration: '5 horas' },
+    'Esmeraldas-Quito': { price: 10, duration: '5 horas' },
+    'Quito-Tena': { price: 8, duration: '4 horas' },
+    'Tena-Quito': { price: 8, duration: '4 horas' },
+    'Quito-Puyo': { price: 9, duration: '4.5 horas' },
+    'Puyo-Quito': { price: 9, duration: '4.5 horas' },
+    
+    // Rutas desde Guayaquil
+    'Guayaquil-Machala': { price: 7, duration: '2 horas' },
+    'Machala-Guayaquil': { price: 7, duration: '2 horas' },
+    'Guayaquil-Manta': { price: 10, duration: '3 horas' },
+    'Manta-Guayaquil': { price: 10, duration: '3 horas' },
+    'Guayaquil-Babahoyo': { price: 4, duration: '1 hora' },
+    'Babahoyo-Guayaquil': { price: 4, duration: '1 hora' },
+    'Guayaquil-Portoviejo': { price: 9, duration: '3 horas' },
+    'Portoviejo-Guayaquil': { price: 9, duration: '3 horas' },
+    'Guayaquil-Salinas': { price: 6, duration: '2 horas' },
+    'Salinas-Guayaquil': { price: 6, duration: '2 horas' },
+    'Guayaquil-Santa Elena': { price: 5, duration: '1.5 horas' },
+    'Santa Elena-Guayaquil': { price: 5, duration: '1.5 horas' },
+    'Guayaquil-Santo Domingo': { price: 11, duration: '4 horas' },
+    'Santo Domingo-Guayaquil': { price: 11, duration: '4 horas' },
+    
+    // Rutas desde Cuenca
+    'Cuenca-Loja': { price: 8, duration: '3 horas' },
+    'Loja-Cuenca': { price: 8, duration: '3 horas' },
+    'Cuenca-Cañar': { price: 4, duration: '1 hora' },
+    'Cañar-Cuenca': { price: 4, duration: '1 hora' },
+    'Cuenca-Azogues': { price: 3, duration: '30 minutos' },
+    'Azogues-Cuenca': { price: 3, duration: '30 minutos' },
+    'Cuenca-Riobamba': { price: 12, duration: '5 horas' },
+    'Riobamba-Cuenca': { price: 12, duration: '5 horas' },
+    'Cuenca-Macas': { price: 10, duration: '4 horas' },
+    'Macas-Cuenca': { price: 10, duration: '4 horas' },
+    
+    // Rutas desde Ambato
+    'Ambato-Riobamba': { price: 4, duration: '1 hora' },
+    'Riobamba-Ambato': { price: 4, duration: '1 hora' },
+    'Ambato-Guaranda': { price: 5, duration: '1.5 horas' },
+    'Guaranda-Ambato': { price: 5, duration: '1.5 horas' },
+    'Ambato-Latacunga': { price: 3, duration: '45 minutos' },
+    'Latacunga-Ambato': { price: 3, duration: '45 minutos' },
+    'Ambato-Baños': { price: 4, duration: '1 hora' },
+    'Baños-Ambato': { price: 4, duration: '1 hora' },
+    'Ambato-Puyo': { price: 7, duration: '3 horas' },
+    'Puyo-Ambato': { price: 7, duration: '3 horas' },
+    
+    // Rutas desde Ibarra
+    'Ibarra-Tulcán': { price: 5, duration: '2 horas' },
+    'Tulcán-Ibarra': { price: 5, duration: '2 horas' },
+    'Ibarra-Esmeraldas': { price: 8, duration: '3.5 horas' },
+    'Esmeraldas-Ibarra': { price: 8, duration: '3.5 horas' },
+    'Ibarra-Otavalo': { price: 3, duration: '30 minutos' },
+    'Otavalo-Ibarra': { price: 3, duration: '30 minutos' },
+    'Ibarra-Latacunga': { price: 7, duration: '3 horas' },
+    'Latacunga-Ibarra': { price: 7, duration: '3 horas' },
+    
+    // Rutas desde Loja
+    'Loja-Zamora': { price: 5, duration: '1.5 horas' },
+    'Zamora-Loja': { price: 5, duration: '1.5 horas' },
+    'Loja-Macará': { price: 6, duration: '2 horas' },
+    'Macará-Loja': { price: 6, duration: '2 horas' },
+    'Loja-Catamayo': { price: 3, duration: '30 minutos' },
+    'Catamayo-Loja': { price: 3, duration: '30 minutos' },
+    'Loja-Machala': { price: 9, duration: '3.5 horas' },
+    'Machala-Loja': { price: 9, duration: '3.5 horas' },
+    
+    // Rutas desde Manta
+    'Manta-Portoviejo': { price: 3, duration: '45 minutos' },
+    'Portoviejo-Manta': { price: 3, duration: '45 minutos' },
+    'Manta-Montecristi': { price: 4, duration: '1 hora' },
+    'Montecristi-Manta': { price: 4, duration: '1 hora' },
+    'Manta-Puerto López': { price: 5, duration: '1.5 horas' },
+    'Puerto López-Manta': { price: 5, duration: '1.5 horas' },
+    'Manta-Bahía de Caráquez': { price: 6, duration: '2 horas' },
+    'Bahía de Caráquez-Manta': { price: 6, duration: '2 horas' },
+    'Manta-Santo Domingo': { price: 9, duration: '3.5 horas' },
+    'Santo Domingo-Manta': { price: 9, duration: '3.5 horas' },
+    'Manta-Salinas': { price: 8, duration: '3 horas' },
+    'Salinas-Manta': { price: 8, duration: '3 horas' },
+    
+    // Rutas desde Riobamba
+    'Riobamba-Guaranda': { price: 5, duration: '1.5 horas' },
+    'Guaranda-Riobamba': { price: 5, duration: '1.5 horas' },
+    'Riobamba-Latacunga': { price: 4, duration: '1 hora' },
+    'Latacunga-Riobamba': { price: 4, duration: '1 hora' },
+    'Riobamba-Baños': { price: 4, duration: '1 hora' },
+    'Baños-Riobamba': { price: 4, duration: '1 hora' },
+    
+    // Rutas desde Esmeraldas
+    'Esmeraldas-Atacames': { price: 3, duration: '30 minutos' },
+    'Atacames-Esmeraldas': { price: 3, duration: '30 minutos' },
+    'Esmeraldas-San Lorenzo': { price: 6, duration: '2 horas' },
+    'San Lorenzo-Esmeraldas': { price: 6, duration: '2 horas' },
+    'Esmeraldas-Santo Domingo': { price: 7, duration: '3 horas' },
+    'Santo Domingo-Esmeraldas': { price: 7, duration: '3 horas' },
+    
+    // Rutas desde Machala
+    'Machala-Santa Rosa': { price: 4, duration: '1 hora' },
+    'Santa Rosa-Machala': { price: 4, duration: '1 hora' },
+    'Machala-Pasaje': { price: 3, duration: '45 minutos' },
+    'Pasaje-Machala': { price: 3, duration: '45 minutos' },
+    
+    // Rutas desde Puyo
+    'Puyo-Tena': { price: 5, duration: '2 horas' },
+    'Tena-Puyo': { price: 5, duration: '2 horas' },
+    'Puyo-Baños': { price: 6, duration: '2.5 horas' },
+    'Baños-Puyo': { price: 6, duration: '2.5 horas' },
+    'Puyo-Macas': { price: 6, duration: '2.5 horas' },
+    'Macas-Puyo': { price: 6, duration: '2.5 horas' },
+    'Puyo-Lago Agrio': { price: 8, duration: '3.5 horas' },
+    'Lago Agrio-Puyo': { price: 8, duration: '3.5 horas' },
+    
+    // Rutas desde Tena
+    'Tena-Francisco de Orellana': { price: 5, duration: '2 horas' },
+    'Francisco de Orellana-Tena': { price: 5, duration: '2 horas' },
+    'Tena-Archidona': { price: 3, duration: '45 minutos' },
+    'Archidona-Tena': { price: 3, duration: '45 minutos' },
+    'Tena-Macas': { price: 7, duration: '3 horas' },
+    'Macas-Tena': { price: 7, duration: '3 horas' },
+    'Tena-Lago Agrio': { price: 9, duration: '4 horas' },
+    'Lago Agrio-Tena': { price: 9, duration: '4 horas' },
+    
+    // Rutas desde Francisco de Orellana
+    'Francisco de Orellana-Lago Agrio': { price: 7, duration: '3 horas' },
+    'Lago Agrio-Francisco de Orellana': { price: 7, duration: '3 horas' },
+    
+    // Rutas desde Santo Domingo
+    'Santo Domingo-Quevedo': { price: 5, duration: '2 horas' },
+    'Quevedo-Santo Domingo': { price: 5, duration: '2 horas' },
+    
+    // Rutas desde Salinas
+    'Salinas-Santa Elena': { price: 3, duration: '30 minutos' },
+    'Santa Elena-Salinas': { price: 3, duration: '30 minutos' },
+    'Salinas-Montañita': { price: 4, duration: '1 hora' },
+    'Montañita-Salinas': { price: 4, duration: '1 hora' },
+    
+    // Rutas desde Babahoyo
+    'Babahoyo-Quevedo': { price: 4, duration: '1 hora' },
+    'Quevedo-Babahoyo': { price: 4, duration: '1 hora' },
+    'Babahoyo-Ventanas': { price: 3, duration: '45 minutos' },
+    'Ventanas-Babahoyo': { price: 3, duration: '45 minutos' },
+    
+    // Rutas desde Tulcán
+    'Tulcán-San Gabriel': { price: 4, duration: '1 hora' },
+    'San Gabriel-Tulcán': { price: 4, duration: '1 hora' },
+    
+    // Rutas desde Zamora
+    'Zamora-Yantzaza': { price: 5, duration: '1.5 horas' },
+    'Yantzaza-Zamora': { price: 5, duration: '1.5 horas' },
+    'Zamora-Gualaquiza': { price: 6, duration: '2 horas' },
+    'Gualaquiza-Zamora': { price: 6, duration: '2 horas' }
+  };
+  
+  const key = `${from}-${to}`;
+  const ruta = rutas[key];
+  
+  if (ruta) {
+    return ruta;
+  }
+  
+  // Valores por defecto si no se encuentra la ruta
+  return { price: 10, duration: '4 horas' };
+}
+
 // Datos de rutas entre ciudades
 const rutas = [
   // Rutas principales - Quito y Guayaquil
-  { name: 'Guayaquil - Quito', from: 'Guayaquil', to: 'Quito', seats: 40 },
-  { name: 'Quito - Guayaquil', from: 'Quito', to: 'Guayaquil', seats: 40 },
+  { name: 'Guayaquil - Quito', from: 'Guayaquil', to: 'Quito', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Quito') },
+  { name: 'Quito - Guayaquil', from: 'Quito', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Quito', 'Guayaquil') },
   
   // Rutas desde Macas
-  { name: 'Macas - Cuenca', from: 'Macas', to: 'Cuenca', seats: 35 },
-  { name: 'Cuenca - Macas', from: 'Cuenca', to: 'Macas', seats: 35 },
-  { name: 'Macas - Puyo', from: 'Macas', to: 'Puyo', seats: 30 },
-  { name: 'Puyo - Macas', from: 'Puyo', to: 'Macas', seats: 30 },
-  { name: 'Macas - Tena', from: 'Macas', to: 'Tena', seats: 30 },
-  { name: 'Tena - Macas', from: 'Tena', to: 'Macas', seats: 30 },
+  { name: 'Macas - Cuenca', from: 'Macas', to: 'Cuenca', seats: 35, ...getPrecioYDuracion('Macas', 'Cuenca') },
+  { name: 'Cuenca - Macas', from: 'Cuenca', to: 'Macas', seats: 35, ...getPrecioYDuracion('Cuenca', 'Macas') },
+  { name: 'Macas - Puyo', from: 'Macas', to: 'Puyo', seats: 30, ...getPrecioYDuracion('Macas', 'Puyo') },
+  { name: 'Puyo - Macas', from: 'Puyo', to: 'Macas', seats: 30, ...getPrecioYDuracion('Puyo', 'Macas') },
+  { name: 'Macas - Tena', from: 'Macas', to: 'Tena', seats: 30, ...getPrecioYDuracion('Macas', 'Tena') },
+  { name: 'Tena - Macas', from: 'Tena', to: 'Macas', seats: 30, ...getPrecioYDuracion('Tena', 'Macas') },
   
   // Rutas desde Lago Agrio
-  { name: 'Lago Agrio - Puyo', from: 'Lago Agrio', to: 'Puyo', seats: 30 },
-  { name: 'Puyo - Lago Agrio', from: 'Puyo', to: 'Lago Agrio', seats: 30 },
-  { name: 'Lago Agrio - Tena', from: 'Lago Agrio', to: 'Tena', seats: 30 },
-  { name: 'Tena - Lago Agrio', from: 'Tena', to: 'Lago Agrio', seats: 30 },
-  { name: 'Lago Agrio - Francisco de Orellana', from: 'Lago Agrio', to: 'Francisco de Orellana', seats: 30 },
-  { name: 'Francisco de Orellana - Lago Agrio', from: 'Francisco de Orellana', to: 'Lago Agrio', seats: 30 },
+  { name: 'Lago Agrio - Puyo', from: 'Lago Agrio', to: 'Puyo', seats: 30, ...getPrecioYDuracion('Lago Agrio', 'Puyo') },
+  { name: 'Puyo - Lago Agrio', from: 'Puyo', to: 'Lago Agrio', seats: 30, ...getPrecioYDuracion('Puyo', 'Lago Agrio') },
+  { name: 'Lago Agrio - Tena', from: 'Lago Agrio', to: 'Tena', seats: 30, ...getPrecioYDuracion('Lago Agrio', 'Tena') },
+  { name: 'Tena - Lago Agrio', from: 'Tena', to: 'Lago Agrio', seats: 30, ...getPrecioYDuracion('Tena', 'Lago Agrio') },
+  { name: 'Lago Agrio - Francisco de Orellana', from: 'Lago Agrio', to: 'Francisco de Orellana', seats: 30, ...getPrecioYDuracion('Lago Agrio', 'Francisco de Orellana') },
+  { name: 'Francisco de Orellana - Lago Agrio', from: 'Francisco de Orellana', to: 'Lago Agrio', seats: 30, ...getPrecioYDuracion('Francisco de Orellana', 'Lago Agrio') },
   
   // Rutas desde Quito a otras ciudades
-  { name: 'Quito - Cuenca', from: 'Quito', to: 'Cuenca', seats: 40 },
-  { name: 'Cuenca - Quito', from: 'Cuenca', to: 'Quito', seats: 40 },
-  { name: 'Quito - Ambato', from: 'Quito', to: 'Ambato', seats: 40 },
-  { name: 'Ambato - Quito', from: 'Ambato', to: 'Quito', seats: 40 },
-  { name: 'Quito - Ibarra', from: 'Quito', to: 'Ibarra', seats: 40 },
-  { name: 'Ibarra - Quito', from: 'Ibarra', to: 'Quito', seats: 40 },
-  { name: 'Quito - Latacunga', from: 'Quito', to: 'Latacunga', seats: 40 },
-  { name: 'Latacunga - Quito', from: 'Latacunga', to: 'Quito', seats: 40 },
-  { name: 'Quito - Riobamba', from: 'Quito', to: 'Riobamba', seats: 40 },
-  { name: 'Riobamba - Quito', from: 'Riobamba', to: 'Quito', seats: 40 },
-  { name: 'Quito - Tena', from: 'Quito', to: 'Tena', seats: 35 },
-  { name: 'Tena - Quito', from: 'Tena', to: 'Quito', seats: 35 },
-  { name: 'Quito - Puyo', from: 'Quito', to: 'Puyo', seats: 35 },
-  { name: 'Puyo - Quito', from: 'Puyo', to: 'Quito', seats: 35 },
-  { name: 'Quito - Santo Domingo', from: 'Quito', to: 'Santo Domingo', seats: 40 },
-  { name: 'Santo Domingo - Quito', from: 'Santo Domingo', to: 'Quito', seats: 40 },
-  { name: 'Quito - Guaranda', from: 'Quito', to: 'Guaranda', seats: 40 },
-  { name: 'Guaranda - Quito', from: 'Guaranda', to: 'Quito', seats: 40 },
-  { name: 'Quito - Tulcán', from: 'Quito', to: 'Tulcán', seats: 40 },
-  { name: 'Tulcán - Quito', from: 'Tulcán', to: 'Quito', seats: 40 },
-  { name: 'Quito - Esmeraldas', from: 'Quito', to: 'Esmeraldas', seats: 35 },
-  { name: 'Esmeraldas - Quito', from: 'Esmeraldas', to: 'Quito', seats: 35 },
+  { name: 'Quito - Cuenca', from: 'Quito', to: 'Cuenca', seats: 40, ...getPrecioYDuracion('Quito', 'Cuenca') },
+  { name: 'Cuenca - Quito', from: 'Cuenca', to: 'Quito', seats: 40, ...getPrecioYDuracion('Cuenca', 'Quito') },
+  { name: 'Quito - Ambato', from: 'Quito', to: 'Ambato', seats: 40, ...getPrecioYDuracion('Quito', 'Ambato') },
+  { name: 'Ambato - Quito', from: 'Ambato', to: 'Quito', seats: 40, ...getPrecioYDuracion('Ambato', 'Quito') },
+  { name: 'Quito - Ibarra', from: 'Quito', to: 'Ibarra', seats: 40, ...getPrecioYDuracion('Quito', 'Ibarra') },
+  { name: 'Ibarra - Quito', from: 'Ibarra', to: 'Quito', seats: 40, ...getPrecioYDuracion('Ibarra', 'Quito') },
+  { name: 'Quito - Latacunga', from: 'Quito', to: 'Latacunga', seats: 40, ...getPrecioYDuracion('Quito', 'Latacunga') },
+  { name: 'Latacunga - Quito', from: 'Latacunga', to: 'Quito', seats: 40, ...getPrecioYDuracion('Latacunga', 'Quito') },
+  { name: 'Quito - Riobamba', from: 'Quito', to: 'Riobamba', seats: 40, ...getPrecioYDuracion('Quito', 'Riobamba') },
+  { name: 'Riobamba - Quito', from: 'Riobamba', to: 'Quito', seats: 40, ...getPrecioYDuracion('Riobamba', 'Quito') },
+  { name: 'Quito - Tena', from: 'Quito', to: 'Tena', seats: 35, ...getPrecioYDuracion('Quito', 'Tena') },
+  { name: 'Tena - Quito', from: 'Tena', to: 'Quito', seats: 35, ...getPrecioYDuracion('Tena', 'Quito') },
+  { name: 'Quito - Puyo', from: 'Quito', to: 'Puyo', seats: 35, ...getPrecioYDuracion('Quito', 'Puyo') },
+  { name: 'Puyo - Quito', from: 'Puyo', to: 'Quito', seats: 35, ...getPrecioYDuracion('Puyo', 'Quito') },
+  { name: 'Quito - Santo Domingo', from: 'Quito', to: 'Santo Domingo', seats: 40, ...getPrecioYDuracion('Quito', 'Santo Domingo') },
+  { name: 'Santo Domingo - Quito', from: 'Santo Domingo', to: 'Quito', seats: 40, ...getPrecioYDuracion('Santo Domingo', 'Quito') },
+  { name: 'Quito - Guaranda', from: 'Quito', to: 'Guaranda', seats: 40, ...getPrecioYDuracion('Quito', 'Guaranda') },
+  { name: 'Guaranda - Quito', from: 'Guaranda', to: 'Quito', seats: 40, ...getPrecioYDuracion('Guaranda', 'Quito') },
+  { name: 'Quito - Tulcán', from: 'Quito', to: 'Tulcán', seats: 40, ...getPrecioYDuracion('Quito', 'Tulcán') },
+  { name: 'Tulcán - Quito', from: 'Tulcán', to: 'Quito', seats: 40, ...getPrecioYDuracion('Tulcán', 'Quito') },
+  { name: 'Quito - Esmeraldas', from: 'Quito', to: 'Esmeraldas', seats: 35, ...getPrecioYDuracion('Quito', 'Esmeraldas') },
+  { name: 'Esmeraldas - Quito', from: 'Esmeraldas', to: 'Quito', seats: 35, ...getPrecioYDuracion('Esmeraldas', 'Quito') },
   
   // Rutas desde Guayaquil
-  { name: 'Guayaquil - Cuenca', from: 'Guayaquil', to: 'Cuenca', seats: 40 },
-  { name: 'Cuenca - Guayaquil', from: 'Cuenca', to: 'Guayaquil', seats: 40 },
-  { name: 'Guayaquil - Machala', from: 'Guayaquil', to: 'Machala', seats: 40 },
-  { name: 'Machala - Guayaquil', from: 'Machala', to: 'Guayaquil', seats: 40 },
-  { name: 'Guayaquil - Manta', from: 'Guayaquil', to: 'Manta', seats: 40 },
-  { name: 'Manta - Guayaquil', from: 'Manta', to: 'Guayaquil', seats: 40 },
-  { name: 'Guayaquil - Babahoyo', from: 'Guayaquil', to: 'Babahoyo', seats: 40 },
-  { name: 'Babahoyo - Guayaquil', from: 'Babahoyo', to: 'Guayaquil', seats: 40 },
-  { name: 'Guayaquil - Portoviejo', from: 'Guayaquil', to: 'Portoviejo', seats: 40 },
-  { name: 'Portoviejo - Guayaquil', from: 'Portoviejo', to: 'Guayaquil', seats: 40 },
-  { name: 'Guayaquil - Salinas', from: 'Guayaquil', to: 'Salinas', seats: 40 },
-  { name: 'Salinas - Guayaquil', from: 'Salinas', to: 'Guayaquil', seats: 40 },
-  { name: 'Guayaquil - Santa Elena', from: 'Guayaquil', to: 'Santa Elena', seats: 40 },
-  { name: 'Santa Elena - Guayaquil', from: 'Santa Elena', to: 'Guayaquil', seats: 40 },
-  { name: 'Guayaquil - Santo Domingo', from: 'Guayaquil', to: 'Santo Domingo', seats: 40 },
-  { name: 'Santo Domingo - Guayaquil', from: 'Santo Domingo', to: 'Guayaquil', seats: 40 },
+  { name: 'Guayaquil - Cuenca', from: 'Guayaquil', to: 'Cuenca', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Cuenca') },
+  { name: 'Cuenca - Guayaquil', from: 'Cuenca', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Cuenca', 'Guayaquil') },
+  { name: 'Guayaquil - Machala', from: 'Guayaquil', to: 'Machala', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Machala') },
+  { name: 'Machala - Guayaquil', from: 'Machala', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Machala', 'Guayaquil') },
+  { name: 'Guayaquil - Manta', from: 'Guayaquil', to: 'Manta', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Manta') },
+  { name: 'Manta - Guayaquil', from: 'Manta', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Manta', 'Guayaquil') },
+  { name: 'Guayaquil - Babahoyo', from: 'Guayaquil', to: 'Babahoyo', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Babahoyo') },
+  { name: 'Babahoyo - Guayaquil', from: 'Babahoyo', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Babahoyo', 'Guayaquil') },
+  { name: 'Guayaquil - Portoviejo', from: 'Guayaquil', to: 'Portoviejo', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Portoviejo') },
+  { name: 'Portoviejo - Guayaquil', from: 'Portoviejo', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Portoviejo', 'Guayaquil') },
+  { name: 'Guayaquil - Salinas', from: 'Guayaquil', to: 'Salinas', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Salinas') },
+  { name: 'Salinas - Guayaquil', from: 'Salinas', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Salinas', 'Guayaquil') },
+  { name: 'Guayaquil - Santa Elena', from: 'Guayaquil', to: 'Santa Elena', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Santa Elena') },
+  { name: 'Santa Elena - Guayaquil', from: 'Santa Elena', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Santa Elena', 'Guayaquil') },
+  { name: 'Guayaquil - Santo Domingo', from: 'Guayaquil', to: 'Santo Domingo', seats: 40, ...getPrecioYDuracion('Guayaquil', 'Santo Domingo') },
+  { name: 'Santo Domingo - Guayaquil', from: 'Santo Domingo', to: 'Guayaquil', seats: 40, ...getPrecioYDuracion('Santo Domingo', 'Guayaquil') },
   
   // Rutas desde Cuenca
-  { name: 'Cuenca - Loja', from: 'Cuenca', to: 'Loja', seats: 40 },
-  { name: 'Loja - Cuenca', from: 'Loja', to: 'Cuenca', seats: 40 },
-  { name: 'Cuenca - Cañar', from: 'Cuenca', to: 'Cañar', seats: 35 },
-  { name: 'Cañar - Cuenca', from: 'Cañar', to: 'Cuenca', seats: 35 },
-  { name: 'Cuenca - Azogues', from: 'Cuenca', to: 'Azogues', seats: 35 },
-  { name: 'Azogues - Cuenca', from: 'Azogues', to: 'Cuenca', seats: 35 },
-  { name: 'Cuenca - Riobamba', from: 'Cuenca', to: 'Riobamba', seats: 40 },
-  { name: 'Riobamba - Cuenca', from: 'Riobamba', to: 'Cuenca', seats: 40 },
+  { name: 'Cuenca - Loja', from: 'Cuenca', to: 'Loja', seats: 40, ...getPrecioYDuracion('Cuenca', 'Loja') },
+  { name: 'Loja - Cuenca', from: 'Loja', to: 'Cuenca', seats: 40, ...getPrecioYDuracion('Loja', 'Cuenca') },
+  { name: 'Cuenca - Cañar', from: 'Cuenca', to: 'Cañar', seats: 35, ...getPrecioYDuracion('Cuenca', 'Cañar') },
+  { name: 'Cañar - Cuenca', from: 'Cañar', to: 'Cuenca', seats: 35, ...getPrecioYDuracion('Cañar', 'Cuenca') },
+  { name: 'Cuenca - Azogues', from: 'Cuenca', to: 'Azogues', seats: 35, ...getPrecioYDuracion('Cuenca', 'Azogues') },
+  { name: 'Azogues - Cuenca', from: 'Azogues', to: 'Cuenca', seats: 35, ...getPrecioYDuracion('Azogues', 'Cuenca') },
+  { name: 'Cuenca - Riobamba', from: 'Cuenca', to: 'Riobamba', seats: 40, ...getPrecioYDuracion('Cuenca', 'Riobamba') },
+  { name: 'Riobamba - Cuenca', from: 'Riobamba', to: 'Cuenca', seats: 40, ...getPrecioYDuracion('Riobamba', 'Cuenca') },
   
   // Rutas desde Ambato
-  { name: 'Ambato - Riobamba', from: 'Ambato', to: 'Riobamba', seats: 40 },
-  { name: 'Riobamba - Ambato', from: 'Riobamba', to: 'Ambato', seats: 40 },
-  { name: 'Ambato - Guaranda', from: 'Ambato', to: 'Guaranda', seats: 35 },
-  { name: 'Guaranda - Ambato', from: 'Guaranda', to: 'Ambato', seats: 35 },
-  { name: 'Ambato - Latacunga', from: 'Ambato', to: 'Latacunga', seats: 40 },
-  { name: 'Latacunga - Ambato', from: 'Latacunga', to: 'Ambato', seats: 40 },
-  { name: 'Ambato - Baños', from: 'Ambato', to: 'Baños', seats: 35 },
-  { name: 'Baños - Ambato', from: 'Baños', to: 'Ambato', seats: 35 },
+  { name: 'Ambato - Riobamba', from: 'Ambato', to: 'Riobamba', seats: 40, ...getPrecioYDuracion('Ambato', 'Riobamba') },
+  { name: 'Riobamba - Ambato', from: 'Riobamba', to: 'Ambato', seats: 40, ...getPrecioYDuracion('Riobamba', 'Ambato') },
+  { name: 'Ambato - Guaranda', from: 'Ambato', to: 'Guaranda', seats: 35, ...getPrecioYDuracion('Ambato', 'Guaranda') },
+  { name: 'Guaranda - Ambato', from: 'Guaranda', to: 'Ambato', seats: 35, ...getPrecioYDuracion('Guaranda', 'Ambato') },
+  { name: 'Ambato - Latacunga', from: 'Ambato', to: 'Latacunga', seats: 40, ...getPrecioYDuracion('Ambato', 'Latacunga') },
+  { name: 'Latacunga - Ambato', from: 'Latacunga', to: 'Ambato', seats: 40, ...getPrecioYDuracion('Latacunga', 'Ambato') },
+  { name: 'Ambato - Baños', from: 'Ambato', to: 'Baños', seats: 35, ...getPrecioYDuracion('Ambato', 'Baños') },
+  { name: 'Baños - Ambato', from: 'Baños', to: 'Ambato', seats: 35, ...getPrecioYDuracion('Baños', 'Ambato') },
   
   // Rutas desde Ibarra
-  { name: 'Ibarra - Tulcán', from: 'Ibarra', to: 'Tulcán', seats: 40 },
-  { name: 'Tulcán - Ibarra', from: 'Tulcán', to: 'Ibarra', seats: 40 },
-  { name: 'Ibarra - Esmeraldas', from: 'Ibarra', to: 'Esmeraldas', seats: 35 },
-  { name: 'Esmeraldas - Ibarra', from: 'Esmeraldas', to: 'Ibarra', seats: 35 },
-  { name: 'Ibarra - Otavalo', from: 'Ibarra', to: 'Otavalo', seats: 35 },
-  { name: 'Otavalo - Ibarra', from: 'Otavalo', to: 'Ibarra', seats: 35 },
-  { name: 'Ibarra - Latacunga', from: 'Ibarra', to: 'Latacunga', seats: 40 },
-  { name: 'Latacunga - Ibarra', from: 'Latacunga', to: 'Ibarra', seats: 40 },
+  { name: 'Ibarra - Tulcán', from: 'Ibarra', to: 'Tulcán', seats: 40, ...getPrecioYDuracion('Ibarra', 'Tulcán') },
+  { name: 'Tulcán - Ibarra', from: 'Tulcán', to: 'Ibarra', seats: 40, ...getPrecioYDuracion('Tulcán', 'Ibarra') },
+  { name: 'Ibarra - Esmeraldas', from: 'Ibarra', to: 'Esmeraldas', seats: 35, ...getPrecioYDuracion('Ibarra', 'Esmeraldas') },
+  { name: 'Esmeraldas - Ibarra', from: 'Esmeraldas', to: 'Ibarra', seats: 35, ...getPrecioYDuracion('Esmeraldas', 'Ibarra') },
+  { name: 'Ibarra - Otavalo', from: 'Ibarra', to: 'Otavalo', seats: 35, ...getPrecioYDuracion('Ibarra', 'Otavalo') },
+  { name: 'Otavalo - Ibarra', from: 'Otavalo', to: 'Ibarra', seats: 35, ...getPrecioYDuracion('Otavalo', 'Ibarra') },
+  { name: 'Ibarra - Latacunga', from: 'Ibarra', to: 'Latacunga', seats: 40, ...getPrecioYDuracion('Ibarra', 'Latacunga') },
+  { name: 'Latacunga - Ibarra', from: 'Latacunga', to: 'Ibarra', seats: 40, ...getPrecioYDuracion('Latacunga', 'Ibarra') },
   
   // Rutas desde Loja
-  { name: 'Loja - Zamora', from: 'Loja', to: 'Zamora', seats: 35 },
-  { name: 'Zamora - Loja', from: 'Zamora', to: 'Loja', seats: 35 },
-  { name: 'Loja - Macará', from: 'Loja', to: 'Macará', seats: 35 },
-  { name: 'Macará - Loja', from: 'Macará', to: 'Loja', seats: 35 },
-  { name: 'Loja - Catamayo', from: 'Loja', to: 'Catamayo', seats: 35 },
-  { name: 'Catamayo - Loja', from: 'Catamayo', to: 'Loja', seats: 35 },
+  { name: 'Loja - Zamora', from: 'Loja', to: 'Zamora', seats: 35, ...getPrecioYDuracion('Loja', 'Zamora') },
+  { name: 'Zamora - Loja', from: 'Zamora', to: 'Loja', seats: 35, ...getPrecioYDuracion('Zamora', 'Loja') },
+  { name: 'Loja - Macará', from: 'Loja', to: 'Macará', seats: 35, ...getPrecioYDuracion('Loja', 'Macará') },
+  { name: 'Macará - Loja', from: 'Macará', to: 'Loja', seats: 35, ...getPrecioYDuracion('Macará', 'Loja') },
+  { name: 'Loja - Catamayo', from: 'Loja', to: 'Catamayo', seats: 35, ...getPrecioYDuracion('Loja', 'Catamayo') },
+  { name: 'Catamayo - Loja', from: 'Catamayo', to: 'Loja', seats: 35, ...getPrecioYDuracion('Catamayo', 'Loja') },
   
   // Rutas desde Manta
-  { name: 'Manta - Portoviejo', from: 'Manta', to: 'Portoviejo', seats: 40 },
-  { name: 'Portoviejo - Manta', from: 'Portoviejo', to: 'Manta', seats: 40 },
-  { name: 'Manta - Montecristi', from: 'Manta', to: 'Montecristi', seats: 35 },
-  { name: 'Montecristi - Manta', from: 'Montecristi', to: 'Manta', seats: 35 },
-  { name: 'Manta - Puerto López', from: 'Manta', to: 'Puerto López', seats: 35 },
-  { name: 'Puerto López - Manta', from: 'Puerto López', to: 'Manta', seats: 35 },
-  { name: 'Manta - Bahía de Caráquez', from: 'Manta', to: 'Bahía de Caráquez', seats: 35 },
-  { name: 'Bahía de Caráquez - Manta', from: 'Bahía de Caráquez', to: 'Manta', seats: 35 },
+  { name: 'Manta - Portoviejo', from: 'Manta', to: 'Portoviejo', seats: 40, ...getPrecioYDuracion('Manta', 'Portoviejo') },
+  { name: 'Portoviejo - Manta', from: 'Portoviejo', to: 'Manta', seats: 40, ...getPrecioYDuracion('Portoviejo', 'Manta') },
+  { name: 'Manta - Montecristi', from: 'Manta', to: 'Montecristi', seats: 35, ...getPrecioYDuracion('Manta', 'Montecristi') },
+  { name: 'Montecristi - Manta', from: 'Montecristi', to: 'Manta', seats: 35, ...getPrecioYDuracion('Montecristi', 'Manta') },
+  { name: 'Manta - Puerto López', from: 'Manta', to: 'Puerto López', seats: 35, ...getPrecioYDuracion('Manta', 'Puerto López') },
+  { name: 'Puerto López - Manta', from: 'Puerto López', to: 'Manta', seats: 35, ...getPrecioYDuracion('Puerto López', 'Manta') },
+  { name: 'Manta - Bahía de Caráquez', from: 'Manta', to: 'Bahía de Caráquez', seats: 35, ...getPrecioYDuracion('Manta', 'Bahía de Caráquez') },
+  { name: 'Bahía de Caráquez - Manta', from: 'Bahía de Caráquez', to: 'Manta', seats: 35, ...getPrecioYDuracion('Bahía de Caráquez', 'Manta') },
   
   // Rutas desde Riobamba
-  { name: 'Riobamba - Guaranda', from: 'Riobamba', to: 'Guaranda', seats: 35 },
-  { name: 'Guaranda - Riobamba', from: 'Guaranda', to: 'Riobamba', seats: 35 },
-  { name: 'Riobamba - Latacunga', from: 'Riobamba', to: 'Latacunga', seats: 40 },
-  { name: 'Latacunga - Riobamba', from: 'Latacunga', to: 'Riobamba', seats: 40 },
-  { name: 'Riobamba - Baños', from: 'Riobamba', to: 'Baños', seats: 35 },
-  { name: 'Baños - Riobamba', from: 'Baños', to: 'Riobamba', seats: 35 },
+  { name: 'Riobamba - Guaranda', from: 'Riobamba', to: 'Guaranda', seats: 35, ...getPrecioYDuracion('Riobamba', 'Guaranda') },
+  { name: 'Guaranda - Riobamba', from: 'Guaranda', to: 'Riobamba', seats: 35, ...getPrecioYDuracion('Guaranda', 'Riobamba') },
+  { name: 'Riobamba - Latacunga', from: 'Riobamba', to: 'Latacunga', seats: 40, ...getPrecioYDuracion('Riobamba', 'Latacunga') },
+  { name: 'Latacunga - Riobamba', from: 'Latacunga', to: 'Riobamba', seats: 40, ...getPrecioYDuracion('Latacunga', 'Riobamba') },
+  { name: 'Riobamba - Baños', from: 'Riobamba', to: 'Baños', seats: 35, ...getPrecioYDuracion('Riobamba', 'Baños') },
+  { name: 'Baños - Riobamba', from: 'Baños', to: 'Riobamba', seats: 35, ...getPrecioYDuracion('Baños', 'Riobamba') },
   
   // Rutas desde Esmeraldas
-  { name: 'Esmeraldas - Atacames', from: 'Esmeraldas', to: 'Atacames', seats: 35 },
-  { name: 'Atacames - Esmeraldas', from: 'Atacames', to: 'Esmeraldas', seats: 35 },
-  { name: 'Esmeraldas - San Lorenzo', from: 'Esmeraldas', to: 'San Lorenzo', seats: 30 },
-  { name: 'San Lorenzo - Esmeraldas', from: 'San Lorenzo', to: 'Esmeraldas', seats: 30 },
+  { name: 'Esmeraldas - Atacames', from: 'Esmeraldas', to: 'Atacames', seats: 35, ...getPrecioYDuracion('Esmeraldas', 'Atacames') },
+  { name: 'Atacames - Esmeraldas', from: 'Atacames', to: 'Esmeraldas', seats: 35, ...getPrecioYDuracion('Atacames', 'Esmeraldas') },
+  { name: 'Esmeraldas - San Lorenzo', from: 'Esmeraldas', to: 'San Lorenzo', seats: 30, ...getPrecioYDuracion('Esmeraldas', 'San Lorenzo') },
+  { name: 'San Lorenzo - Esmeraldas', from: 'San Lorenzo', to: 'Esmeraldas', seats: 30, ...getPrecioYDuracion('San Lorenzo', 'Esmeraldas') },
   
   // Rutas desde Machala
-  { name: 'Machala - Santa Rosa', from: 'Machala', to: 'Santa Rosa', seats: 35 },
-  { name: 'Santa Rosa - Machala', from: 'Santa Rosa', to: 'Machala', seats: 35 },
-  { name: 'Machala - Pasaje', from: 'Machala', to: 'Pasaje', seats: 35 },
-  { name: 'Pasaje - Machala', from: 'Pasaje', to: 'Machala', seats: 35 },
-  { name: 'Machala - Loja', from: 'Machala', to: 'Loja', seats: 40 },
-  { name: 'Loja - Machala', from: 'Loja', to: 'Machala', seats: 40 },
+  { name: 'Machala - Santa Rosa', from: 'Machala', to: 'Santa Rosa', seats: 35, ...getPrecioYDuracion('Machala', 'Santa Rosa') },
+  { name: 'Santa Rosa - Machala', from: 'Santa Rosa', to: 'Machala', seats: 35, ...getPrecioYDuracion('Santa Rosa', 'Machala') },
+  { name: 'Machala - Pasaje', from: 'Machala', to: 'Pasaje', seats: 35, ...getPrecioYDuracion('Machala', 'Pasaje') },
+  { name: 'Pasaje - Machala', from: 'Pasaje', to: 'Machala', seats: 35, ...getPrecioYDuracion('Pasaje', 'Machala') },
+  { name: 'Machala - Loja', from: 'Machala', to: 'Loja', seats: 40, ...getPrecioYDuracion('Machala', 'Loja') },
+  { name: 'Loja - Machala', from: 'Loja', to: 'Machala', seats: 40, ...getPrecioYDuracion('Loja', 'Machala') },
   
   // Rutas desde Puyo
-  { name: 'Puyo - Tena', from: 'Puyo', to: 'Tena', seats: 30 },
-  { name: 'Tena - Puyo', from: 'Tena', to: 'Puyo', seats: 30 },
-  { name: 'Puyo - Baños', from: 'Puyo', to: 'Baños', seats: 35 },
-  { name: 'Baños - Puyo', from: 'Baños', to: 'Puyo', seats: 35 },
-  { name: 'Puyo - Ambato', from: 'Puyo', to: 'Ambato', seats: 35 },
-  { name: 'Ambato - Puyo', from: 'Ambato', to: 'Puyo', seats: 35 },
+  { name: 'Puyo - Tena', from: 'Puyo', to: 'Tena', seats: 30, ...getPrecioYDuracion('Puyo', 'Tena') },
+  { name: 'Tena - Puyo', from: 'Tena', to: 'Puyo', seats: 30, ...getPrecioYDuracion('Tena', 'Puyo') },
+  { name: 'Puyo - Baños', from: 'Puyo', to: 'Baños', seats: 35, ...getPrecioYDuracion('Puyo', 'Baños') },
+  { name: 'Baños - Puyo', from: 'Baños', to: 'Puyo', seats: 35, ...getPrecioYDuracion('Baños', 'Puyo') },
+  { name: 'Puyo - Ambato', from: 'Puyo', to: 'Ambato', seats: 35, ...getPrecioYDuracion('Puyo', 'Ambato') },
+  { name: 'Ambato - Puyo', from: 'Ambato', to: 'Puyo', seats: 35, ...getPrecioYDuracion('Ambato', 'Puyo') },
   
   // Rutas desde Tena
-  { name: 'Tena - Francisco de Orellana', from: 'Tena', to: 'Francisco de Orellana', seats: 30 },
-  { name: 'Francisco de Orellana - Tena', from: 'Francisco de Orellana', to: 'Tena', seats: 30 },
-  { name: 'Tena - Archidona', from: 'Tena', to: 'Archidona', seats: 30 },
-  { name: 'Archidona - Tena', from: 'Archidona', to: 'Tena', seats: 30 },
+  { name: 'Tena - Francisco de Orellana', from: 'Tena', to: 'Francisco de Orellana', seats: 30, ...getPrecioYDuracion('Tena', 'Francisco de Orellana') },
+  { name: 'Francisco de Orellana - Tena', from: 'Francisco de Orellana', to: 'Tena', seats: 30, ...getPrecioYDuracion('Francisco de Orellana', 'Tena') },
+  { name: 'Tena - Archidona', from: 'Tena', to: 'Archidona', seats: 30, ...getPrecioYDuracion('Tena', 'Archidona') },
+  { name: 'Archidona - Tena', from: 'Archidona', to: 'Tena', seats: 30, ...getPrecioYDuracion('Archidona', 'Tena') },
   
   // Rutas desde Francisco de Orellana
-  { name: 'Francisco de Orellana - Lago Agrio', from: 'Francisco de Orellana', to: 'Lago Agrio', seats: 30 },
-  { name: 'Lago Agrio - Francisco de Orellana', from: 'Lago Agrio', to: 'Francisco de Orellana', seats: 30 },
+  { name: 'Francisco de Orellana - Lago Agrio', from: 'Francisco de Orellana', to: 'Lago Agrio', seats: 30, ...getPrecioYDuracion('Francisco de Orellana', 'Lago Agrio') },
+  { name: 'Lago Agrio - Francisco de Orellana', from: 'Lago Agrio', to: 'Francisco de Orellana', seats: 30, ...getPrecioYDuracion('Lago Agrio', 'Francisco de Orellana') },
   
   // Rutas desde Santo Domingo
-  { name: 'Santo Domingo - Esmeraldas', from: 'Santo Domingo', to: 'Esmeraldas', seats: 35 },
-  { name: 'Esmeraldas - Santo Domingo', from: 'Esmeraldas', to: 'Santo Domingo', seats: 35 },
-  { name: 'Santo Domingo - Manta', from: 'Santo Domingo', to: 'Manta', seats: 40 },
-  { name: 'Manta - Santo Domingo', from: 'Manta', to: 'Santo Domingo', seats: 40 },
-  { name: 'Santo Domingo - Quevedo', from: 'Santo Domingo', to: 'Quevedo', seats: 40 },
-  { name: 'Quevedo - Santo Domingo', from: 'Quevedo', to: 'Santo Domingo', seats: 40 },
+  { name: 'Santo Domingo - Esmeraldas', from: 'Santo Domingo', to: 'Esmeraldas', seats: 35, ...getPrecioYDuracion('Santo Domingo', 'Esmeraldas') },
+  { name: 'Esmeraldas - Santo Domingo', from: 'Esmeraldas', to: 'Santo Domingo', seats: 35, ...getPrecioYDuracion('Esmeraldas', 'Santo Domingo') },
+  { name: 'Santo Domingo - Manta', from: 'Santo Domingo', to: 'Manta', seats: 40, ...getPrecioYDuracion('Santo Domingo', 'Manta') },
+  { name: 'Manta - Santo Domingo', from: 'Manta', to: 'Santo Domingo', seats: 40, ...getPrecioYDuracion('Manta', 'Santo Domingo') },
+  { name: 'Santo Domingo - Quevedo', from: 'Santo Domingo', to: 'Quevedo', seats: 40, ...getPrecioYDuracion('Santo Domingo', 'Quevedo') },
+  { name: 'Quevedo - Santo Domingo', from: 'Quevedo', to: 'Santo Domingo', seats: 40, ...getPrecioYDuracion('Quevedo', 'Santo Domingo') },
   
   // Rutas desde Salinas
-  { name: 'Salinas - Santa Elena', from: 'Salinas', to: 'Santa Elena', seats: 35 },
-  { name: 'Santa Elena - Salinas', from: 'Santa Elena', to: 'Salinas', seats: 35 },
-  { name: 'Salinas - Montañita', from: 'Salinas', to: 'Montañita', seats: 35 },
-  { name: 'Montañita - Salinas', from: 'Montañita', to: 'Salinas', seats: 35 },
-  { name: 'Salinas - Manta', from: 'Salinas', to: 'Manta', seats: 40 },
-  { name: 'Manta - Salinas', from: 'Manta', to: 'Salinas', seats: 40 },
+  { name: 'Salinas - Santa Elena', from: 'Salinas', to: 'Santa Elena', seats: 35, ...getPrecioYDuracion('Salinas', 'Santa Elena') },
+  { name: 'Santa Elena - Salinas', from: 'Santa Elena', to: 'Salinas', seats: 35, ...getPrecioYDuracion('Santa Elena', 'Salinas') },
+  { name: 'Salinas - Montañita', from: 'Salinas', to: 'Montañita', seats: 35, ...getPrecioYDuracion('Salinas', 'Montañita') },
+  { name: 'Montañita - Salinas', from: 'Montañita', to: 'Salinas', seats: 35, ...getPrecioYDuracion('Montañita', 'Salinas') },
+  { name: 'Salinas - Manta', from: 'Salinas', to: 'Manta', seats: 40, ...getPrecioYDuracion('Salinas', 'Manta') },
+  { name: 'Manta - Salinas', from: 'Manta', to: 'Salinas', seats: 40, ...getPrecioYDuracion('Manta', 'Salinas') },
   
   // Rutas desde Babahoyo
-  { name: 'Babahoyo - Quevedo', from: 'Babahoyo', to: 'Quevedo', seats: 40 },
-  { name: 'Quevedo - Babahoyo', from: 'Quevedo', to: 'Babahoyo', seats: 40 },
-  { name: 'Babahoyo - Ventanas', from: 'Babahoyo', to: 'Ventanas', seats: 35 },
-  { name: 'Ventanas - Babahoyo', from: 'Ventanas', to: 'Babahoyo', seats: 35 },
+  { name: 'Babahoyo - Quevedo', from: 'Babahoyo', to: 'Quevedo', seats: 40, ...getPrecioYDuracion('Babahoyo', 'Quevedo') },
+  { name: 'Quevedo - Babahoyo', from: 'Quevedo', to: 'Babahoyo', seats: 40, ...getPrecioYDuracion('Quevedo', 'Babahoyo') },
+  { name: 'Babahoyo - Ventanas', from: 'Babahoyo', to: 'Ventanas', seats: 35, ...getPrecioYDuracion('Babahoyo', 'Ventanas') },
+  { name: 'Ventanas - Babahoyo', from: 'Ventanas', to: 'Babahoyo', seats: 35, ...getPrecioYDuracion('Ventanas', 'Babahoyo') },
   
   // Rutas desde Tulcán
-  { name: 'Tulcán - San Gabriel', from: 'Tulcán', to: 'San Gabriel', seats: 35 },
-  { name: 'San Gabriel - Tulcán', from: 'San Gabriel', to: 'Tulcán', seats: 35 },
+  { name: 'Tulcán - San Gabriel', from: 'Tulcán', to: 'San Gabriel', seats: 35, ...getPrecioYDuracion('Tulcán', 'San Gabriel') },
+  { name: 'San Gabriel - Tulcán', from: 'San Gabriel', to: 'Tulcán', seats: 35, ...getPrecioYDuracion('San Gabriel', 'Tulcán') },
   
   // Rutas desde Zamora
-  { name: 'Zamora - Yantzaza', from: 'Zamora', to: 'Yantzaza', seats: 30 },
-  { name: 'Yantzaza - Zamora', from: 'Yantzaza', to: 'Zamora', seats: 30 },
-  { name: 'Zamora - Gualaquiza', from: 'Zamora', to: 'Gualaquiza', seats: 30 },
-  { name: 'Gualaquiza - Zamora', from: 'Gualaquiza', to: 'Zamora', seats: 30 }
+  { name: 'Zamora - Yantzaza', from: 'Zamora', to: 'Yantzaza', seats: 30, ...getPrecioYDuracion('Zamora', 'Yantzaza') },
+  { name: 'Yantzaza - Zamora', from: 'Yantzaza', to: 'Zamora', seats: 30, ...getPrecioYDuracion('Yantzaza', 'Zamora') },
+  { name: 'Zamora - Gualaquiza', from: 'Zamora', to: 'Gualaquiza', seats: 30, ...getPrecioYDuracion('Zamora', 'Gualaquiza') },
+  { name: 'Gualaquiza - Zamora', from: 'Gualaquiza', to: 'Zamora', seats: 30, ...getPrecioYDuracion('Gualaquiza', 'Zamora') }
 ];
 
 module.exports = {

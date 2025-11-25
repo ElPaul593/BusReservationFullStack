@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../services/users';
 import { PROVINCIAS_ARRAY, getProvinciaFromCedula } from '../constants/provincias';
+import { getRutasPorProvincia, getRutas } from '../services/rutas';
 
 export default function Rutas() {
   const [loading, setLoading] = useState(true);
+  const [loadingRutas, setLoadingRutas] = useState(false);
   const [user, setUser] = useState(null);
   const [provinciaUsuario, setProvinciaUsuario] = useState(null);
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState('');
+  const [mostrarTodas, setMostrarTodas] = useState(false);
   const [rutasRecomendadas, setRutasRecomendadas] = useState([]);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -42,72 +45,59 @@ export default function Rutas() {
     })();
   }, [token, navigate]);
 
-  // Cargar rutas recomendadas cuando cambie la provincia seleccionada
+  // Cargar rutas recomendadas cuando cambie la provincia seleccionada o mostrarTodas
   useEffect(() => {
-    if (provinciaSeleccionada) {
+    if (mostrarTodas) {
+      cargarTodasLasRutas();
+    } else if (provinciaSeleccionada) {
       cargarRutasPorProvincia(provinciaSeleccionada);
     } else {
       setRutasRecomendadas([]);
     }
-  }, [provinciaSeleccionada]);
+  }, [provinciaSeleccionada, mostrarTodas]);
 
-  const cargarRutasPorProvincia = (provincia) => {
-    // Rutas de ejemplo basadas en la provincia
-    // En una aplicación real, esto vendría de una API
-    const rutasPorProvincia = {
-      'Pichincha': [
-        { origen: 'Quito', destino: 'Guayaquil', precio: '$25', duracion: '8 horas', empresa: 'Flota Imbabura' },
-        { origen: 'Quito', destino: 'Cuenca', precio: '$20', duracion: '9 horas', empresa: 'Cooperativa Loja' },
-        { origen: 'Quito', destino: 'Ambato', precio: '$8', duracion: '2 horas', empresa: 'Transportes Baños' },
-        { origen: 'Quito', destino: 'Ibarra', precio: '$6', duracion: '2.5 horas', empresa: 'Flota Imbabura' }
-      ],
-      'Guayas': [
-        { origen: 'Guayaquil', destino: 'Quito', precio: '$25', duracion: '8 horas', empresa: 'Flota Imbabura' },
-        { origen: 'Guayaquil', destino: 'Cuenca', precio: '$15', duracion: '4 horas', empresa: 'Cooperativa Loja' },
-        { origen: 'Guayaquil', destino: 'Manta', precio: '$12', duracion: '3 horas', empresa: 'Reina del Camino' },
-        { origen: 'Guayaquil', destino: 'Machala', precio: '$8', duracion: '2 horas', empresa: 'Transportes Ecuador' }
-      ],
-      'Azuay': [
-        { origen: 'Cuenca', destino: 'Quito', precio: '$20', duracion: '9 horas', empresa: 'Cooperativa Loja' },
-        { origen: 'Cuenca', destino: 'Guayaquil', precio: '$15', duracion: '4 horas', empresa: 'Cooperativa Loja' },
-        { origen: 'Cuenca', destino: 'Loja', precio: '$10', duracion: '3 horas', empresa: 'Transportes Loja' },
-        { origen: 'Cuenca', destino: 'Machala', precio: '$12', duracion: '4 horas', empresa: 'Transportes Ecuador' }
-      ],
-      'Manabí': [
-        { origen: 'Manta', destino: 'Guayaquil', precio: '$12', duracion: '3 horas', empresa: 'Reina del Camino' },
-        { origen: 'Manta', destino: 'Quito', precio: '$18', duracion: '6 horas', empresa: 'Reina del Camino' },
-        { origen: 'Portoviejo', destino: 'Guayaquil', precio: '$10', duracion: '2.5 horas', empresa: 'Reina del Camino' }
-      ],
-      'Tungurahua': [
-        { origen: 'Ambato', destino: 'Quito', precio: '$8', duracion: '2 horas', empresa: 'Transportes Baños' },
-        { origen: 'Ambato', destino: 'Riobamba', precio: '$5', duracion: '1 hora', empresa: 'Transportes Baños' },
-        { origen: 'Ambato', destino: 'Cuenca', precio: '$15', duracion: '6 horas', empresa: 'Cooperativa Loja' }
-      ],
-      'Imbabura': [
-        { origen: 'Ibarra', destino: 'Quito', precio: '$6', duracion: '2.5 horas', empresa: 'Flota Imbabura' },
-        { origen: 'Ibarra', destino: 'Tulcán', precio: '$4', duracion: '1.5 horas', empresa: 'Flota Imbabura' },
-        { origen: 'Ibarra', destino: 'Otavalo', precio: '$2', duracion: '30 minutos', empresa: 'Transportes Otavalo' }
-      ],
-      'El Oro': [
-        { origen: 'Machala', destino: 'Guayaquil', precio: '$8', duracion: '2 horas', empresa: 'Transportes Ecuador' },
-        { origen: 'Machala', destino: 'Cuenca', precio: '$12', duracion: '4 horas', empresa: 'Transportes Ecuador' },
-        { origen: 'Machala', destino: 'Loja', precio: '$10', duracion: '3 horas', empresa: 'Transportes Loja' }
-      ],
-      'Loja': [
-        { origen: 'Loja', destino: 'Cuenca', precio: '$10', duracion: '3 horas', empresa: 'Transportes Loja' },
-        { origen: 'Loja', destino: 'Guayaquil', precio: '$15', duracion: '5 horas', empresa: 'Transportes Loja' },
-        { origen: 'Loja', destino: 'Machala', precio: '$10', duracion: '3 horas', empresa: 'Transportes Loja' }
-      ]
-    };
+  const formatearRutas = (rutas) => {
+    return rutas.map(ruta => ({
+      id: ruta._id || ruta.id,
+      origen: ruta.from,
+      destino: ruta.to,
+      nombre: ruta.name,
+      asientos: ruta.seats,
+      precio: ruta.price ? `$${ruta.price}` : 'Consultar precio',
+      duracion: ruta.duration || 'Consultar duración',
+      empresa: 'Varias empresas'
+    }));
+  };
 
-    // Obtener rutas para la provincia seleccionada o mostrar rutas generales
-    const rutas = rutasPorProvincia[provincia] || [
-      { origen: 'Quito', destino: 'Guayaquil', precio: '$25', duracion: '8 horas', empresa: 'Flota Imbabura' },
-      { origen: 'Guayaquil', destino: 'Cuenca', precio: '$15', duracion: '4 horas', empresa: 'Cooperativa Loja' },
-      { origen: 'Cuenca', destino: 'Loja', precio: '$10', duracion: '3 horas', empresa: 'Transportes Loja' }
-    ];
+  const cargarRutasPorProvincia = async (provincia) => {
+    if (!provincia) {
+      setRutasRecomendadas([]);
+      return;
+    }
 
-    setRutasRecomendadas(rutas);
+    setLoadingRutas(true);
+    try {
+      const rutas = await getRutasPorProvincia(provincia);
+      setRutasRecomendadas(formatearRutas(rutas));
+    } catch (err) {
+      console.error('Error al cargar rutas:', err);
+      setRutasRecomendadas([]);
+    } finally {
+      setLoadingRutas(false);
+    }
+  };
+
+  const cargarTodasLasRutas = async () => {
+    setLoadingRutas(true);
+    try {
+      const rutas = await getRutas();
+      setRutasRecomendadas(formatearRutas(rutas));
+    } catch (err) {
+      console.error('Error al cargar todas las rutas:', err);
+      setRutasRecomendadas([]);
+    } finally {
+      setLoadingRutas(false);
+    }
   };
 
   if (!token) {
@@ -149,32 +139,65 @@ export default function Rutas() {
           </div>
         )}
 
-        {/* Dropdown de provincias */}
+        {/* Dropdown de provincias y opción para ver todas */}
         <div className="provincia-selector">
-          <label htmlFor="provincia-select">Selecciona una provincia para ver rutas recomendadas:</label>
-          <select
-            id="provincia-select"
-            className="input"
-            value={provinciaSeleccionada}
-            onChange={(e) => setProvinciaSeleccionada(e.target.value)}
-            style={{ maxWidth: '400px', marginTop: '8px' }}
-          >
-            <option value="">Seleccione una provincia</option>
-            {PROVINCIAS_ARRAY.map((prov) => (
-              <option key={prov.codigo} value={prov.nombre}>
-                {prov.nombre}
-              </option>
-            ))}
-          </select>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={mostrarTodas}
+                onChange={(e) => {
+                  setMostrarTodas(e.target.checked);
+                  if (e.target.checked) {
+                    setProvinciaSeleccionada('');
+                  }
+                }}
+              />
+              <span>Mostrar todas las rutas disponibles</span>
+            </label>
+          </div>
+          {!mostrarTodas && (
+            <>
+              <label htmlFor="provincia-select">Selecciona una provincia para ver rutas recomendadas:</label>
+              <select
+                id="provincia-select"
+                className="input"
+                value={provinciaSeleccionada}
+                onChange={(e) => setProvinciaSeleccionada(e.target.value)}
+                style={{ maxWidth: '400px', marginTop: '8px' }}
+              >
+                <option value="">Seleccione una provincia</option>
+                {PROVINCIAS_ARRAY.map((prov) => (
+                  <option key={prov.codigo} value={prov.nombre}>
+                    {prov.nombre}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
         </div>
 
         {/* Rutas recomendadas */}
-        {provinciaSeleccionada && rutasRecomendadas.length > 0 && (
+        {(provinciaSeleccionada || mostrarTodas) && loadingRutas && (
           <div className="rutas-section">
-            <h3>Rutas desde {provinciaSeleccionada}</h3>
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Cargando rutas...</p>
+            </div>
+          </div>
+        )}
+
+        {(provinciaSeleccionada || mostrarTodas) && !loadingRutas && rutasRecomendadas.length > 0 && (
+          <div className="rutas-section">
+            <h3>
+              {mostrarTodas 
+                ? `Todas las rutas disponibles (${rutasRecomendadas.length} rutas)` 
+                : `Rutas desde ${provinciaSeleccionada} (${rutasRecomendadas.length} rutas disponibles)`
+              }
+            </h3>
             <div className="rutas-grid">
               {rutasRecomendadas.map((ruta, index) => (
-                <div key={index} className="ruta-card">
+                <div key={ruta.id || index} className="ruta-card">
                   <div className="ruta-header">
                     <div className="ruta-route">
                       <span className="ruta-origen">{ruta.origen}</span>
@@ -184,6 +207,10 @@ export default function Rutas() {
                     <div className="ruta-precio">{ruta.precio}</div>
                   </div>
                   <div className="ruta-info">
+                    <div className="ruta-item">
+                      <span className="ruta-label">Asientos:</span>
+                      <span className="ruta-value">{ruta.asientos}</span>
+                    </div>
                     <div className="ruta-item">
                       <span className="ruta-label">Duración:</span>
                       <span className="ruta-value">{ruta.duracion}</span>
@@ -195,7 +222,7 @@ export default function Rutas() {
                   </div>
                   <button 
                     className="btn-ruta"
-                    onClick={() => navigate(`/boletos?origen=${ruta.origen}&destino=${ruta.destino}`)}
+                    onClick={() => navigate(`/boletos?origen=${encodeURIComponent(ruta.origen)}&destino=${encodeURIComponent(ruta.destino)}`)}
                   >
                     Ver Boletos
                   </button>
@@ -205,15 +232,20 @@ export default function Rutas() {
           </div>
         )}
 
-        {provinciaSeleccionada && rutasRecomendadas.length === 0 && (
+        {(provinciaSeleccionada || mostrarTodas) && !loadingRutas && rutasRecomendadas.length === 0 && (
           <div className="no-rutas">
-            <p>No hay rutas disponibles para {provinciaSeleccionada} en este momento.</p>
+            <p>
+              {mostrarTodas 
+                ? 'No hay rutas disponibles en este momento.' 
+                : `No hay rutas disponibles para ${provinciaSeleccionada} en este momento.`
+              }
+            </p>
           </div>
         )}
 
-        {!provinciaSeleccionada && (
+        {!provinciaSeleccionada && !mostrarTodas && (
           <div className="no-rutas">
-            <p>Por favor, selecciona una provincia para ver las rutas recomendadas.</p>
+            <p>Por favor, selecciona una provincia o marca "Mostrar todas las rutas disponibles" para ver las rutas.</p>
           </div>
         )}
       </div>
