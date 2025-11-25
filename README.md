@@ -17,9 +17,9 @@
 -[Conclusión](#conclusión) <br/>
 
 ## Descripición del Proyecto y sus caracteristicas
-El sistema BusReservation es una aplicación web Full Stack orientada a la gestión integral de reservas de boletos de autobuses interprovinciales en Ecuador. Su core combina módulos de autenticación, reservas, optimización de rutas, información turística y un motor inteligente de recomendaciones.
+El sistema BusReservation es una aplicación web Full Stack orientada a la gestión integral de reservas de boletos de autobuses interprovinciales en Ecuador. Su core combina módulos de autenticación, reservas, optimización de rutas, información turística y un motor inteligente de recomendaciones basado en la nacionalidad.
 
-En el flujo principal, los usuarios pueden registrarse e iniciar sesión utilizando su cédula, buscar rutas entre distintos destinos, seleccionar asientos y comprar boletos de manera segura. Además, la plataforma presenta información complementaria, como hoteles y alojamientos disponibles en el destino seleccionado, optimizando la planificación del viaje. Paralelamente, los conductores cuentan con herramientas de navegación que les permiten identificar la ruta más corta y eficiente según el origen y destino.
+En el flujo principal, los usuarios pueden registrarse e iniciar sesión utilizando su cédula, buscar rutas entre distintos destinos, seleccionar asientos y comprar boletos de manera segura. Además, la plataforma presenta información complementaria, como hoteles y alojamientos disponibles en el destino seleccionado, optimizando la planificación del viaje. 
 
 ## Estado del proyecto
 <h4 align="center">
