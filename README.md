@@ -17,13 +17,9 @@
 -[Conclusión](#conclusión) <br/>
 
 ## Descripición del Proyecto y sus caracteristicas
-BusReservation es una aplicación web Full Stack diseñada para la reserva de boletos de autobuses interprovinciales en Ecuador, brindando una experiencia completa tanto para los usuarios como para los conductores.
+El sistema BusReservation es una aplicación web Full Stack orientada a la gestión integral de reservas de boletos de autobuses interprovinciales en Ecuador. Su core combina módulos de autenticación, reservas, optimización de rutas, información turística y un motor inteligente de recomendaciones.
 
-Los usuarios pueden registrarse e iniciar sesión utilizando su cédula, explorar y buscar rutas disponibles entre distintos destinos, seleccionar y reservar asientos, y comprar boletos de manera segura. Además, la aplicación permite a los usuarios visualizar información adicional sobre hoteles y alojamientos en su destino, optimizando la planificación de su viaje.
-
-Por otro lado, los conductores tienen acceso a herramientas de navegación que les permiten identificar la ruta más corta entre origen y destino, facilitando la optimización de tiempo y la eficiencia en sus recorridos.
-
-En conjunto, la aplicación integra la gestión de reservas, la optimización de rutas y la visualización de información turística en un entorno web moderno y seguro, garantizando que tanto usuarios como conductores puedan aprovechar al máximo su tiempo y planificar sus viajes de forma eficiente.
+En el flujo principal, los usuarios pueden registrarse e iniciar sesión utilizando su cédula, buscar rutas entre distintos destinos, seleccionar asientos y comprar boletos de manera segura. Además, la plataforma presenta información complementaria, como hoteles y alojamientos disponibles en el destino seleccionado, optimizando la planificación del viaje. Paralelamente, los conductores cuentan con herramientas de navegación que les permiten identificar la ruta más corta y eficiente según el origen y destino.
 
 ## Estado del proyecto
 <h4 align="center">
