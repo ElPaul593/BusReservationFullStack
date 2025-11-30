@@ -1,25 +1,25 @@
 const Calificacion = require('../models/calificacionModel');
 
 exports.findAll = async (filters = {}) => {
-  return Calificacion.find(filters).populate('usuario', 'nombre apellido paisOrigen').sort({ fecha: -1 }).lean();
+  return Calificacion.find(filters).populate('usuario', 'nombre apellido paisOrigen provincia').sort({ fecha: -1 }).lean();
 };
 
 exports.findByTipoYReferencia = async (tipo, referencia) => {
   return Calificacion.find({ tipo, referencia })
-    .populate('usuario', 'nombre apellido paisOrigen')
+    .populate('usuario', 'nombre apellido paisOrigen provincia')
     .sort({ fecha: -1 })
     .lean();
 };
 
 exports.findByUsuario = async (usuarioId) => {
   return Calificacion.find({ usuario: usuarioId })
-    .populate('usuario', 'nombre apellido paisOrigen')
+    .populate('usuario', 'nombre apellido paisOrigen provincia')
     .sort({ fecha: -1 })
     .lean();
 };
 
 exports.findById = async (id) => {
-  return Calificacion.findById(id).populate('usuario', 'nombre apellido paisOrigen').lean();
+  return Calificacion.findById(id).populate('usuario', 'nombre apellido paisOrigen provincia').lean();
 };
 
 exports.create = async (data) => {
@@ -42,7 +42,7 @@ exports.deleteById = async (id) => {
 // Método para obtener calificaciones agrupadas por nacionalidad
 exports.findByTipoYReferenciaConNacionalidad = async (tipo, referencia) => {
   return Calificacion.find({ tipo, referencia })
-    .populate('usuario', 'nombre apellido paisOrigen')
+    .populate('usuario', 'nombre apellido paisOrigen provincia')
     .sort({ fecha: -1 })
     .lean();
 };
@@ -57,8 +57,19 @@ exports.findCalificacionesMesActual = async (tipo, referencia) => {
     referencia,
     fecha: { $gte: inicioMes }
   })
-    .populate('usuario', 'nombre apellido paisOrigen')
+    .populate('usuario', 'nombre apellido paisOrigen provincia')
     .sort({ fecha: -1 })
     .lean();
+};
+
+// Método para obtener calificaciones filtradas por provincia de usuario
+exports.findByTipoYReferenciaYProvincia = async (tipo, referencia, provincia) => {
+  const calificaciones = await Calificacion.find({ tipo, referencia })
+    .populate('usuario', 'nombre apellido paisOrigen provincia')
+    .sort({ fecha: -1 })
+    .lean();
+  
+  // Filtrar por provincia del usuario
+  return calificaciones.filter(c => c.usuario && c.usuario.provincia === provincia);
 };
 

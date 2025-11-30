@@ -32,6 +32,7 @@ const UserSchema = new mongoose.Schema({
   },
 
   paisOrigen: { type: String, required: true },
+  provincia: { type: String }, // Provincia de Ecuador (solo para usuarios ecuatorianos)
 
  
   role: { 

@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const { validarCedulaEcuatoriana } = require('../utils/cedulaValidator');
+const { getProvinciaFromCedula } = require('../utils/provinciaUtils');
 
 const SALT_ROUNDS = 10;
 
@@ -40,6 +41,9 @@ exports.register = async ({ cedula, pasaporte, nombre, apellido, telefono, passw
     const existing = await User.findOne({ cedula: cedulaLimpia });
     if (existing) throw new Error('Usuario con esa cédula ya existe');
 
+    // Detectar provincia desde la cédula
+    const provincia = getProvinciaFromCedula(cedulaLimpia);
+
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({
       cedula: cedulaLimpia,
@@ -48,6 +52,7 @@ exports.register = async ({ cedula, pasaporte, nombre, apellido, telefono, passw
       telefono: telefonoLimpio,
       password: hashed,
       paisOrigen: paisSeleccionado,
+      provincia: provincia, // Provincia detectada desde la cédula
       role: assignedRole
     });
 

@@ -1,6 +1,7 @@
 const CalificacionRepo = require('../repositories/calificacionRepo');
 const HotelRepo = require('../repositories/hotelRepo');
 const LugarTuristicoRepo = require('../repositories/lugarTuristicoRepo');
+const RecommendationCore = require('../core/recommendationCore');
 
 /**
  * Algoritmo de recomendaciones personalizado por nacionalidad
@@ -184,5 +185,27 @@ exports.getRecomendadosGenerales = async (ciudad, tipo = 'lugarTuristico') => {
   return itemsConCalificaciones
     .filter(item => item.totalCalificaciones > 0)
     .sort((a, b) => b.score - a.score);
+};
+
+/**
+ * Obtener recomendaciones personalizadas por provincia de origen
+ * Este es el método principal que usa el algoritmo de recomendaciones por provincia
+ */
+exports.getRecomendadosPorProvincia = async (provinciaOrigen, ciudadDestino, usuarioId = null) => {
+  return await RecommendationCore.getRecomendadosPorProvincia(provinciaOrigen, ciudadDestino, usuarioId);
+};
+
+/**
+ * Obtener recomendaciones guardadas de la colección hija
+ */
+exports.getRecomendadosGuardados = async (usuarioId, rutaId) => {
+  return await RecommendationCore.getRecomendadosGuardados(usuarioId, rutaId);
+};
+
+/**
+ * Obtener recomendaciones por provincia y destino desde la colección hija
+ */
+exports.getRecomendadosPorProvinciaYDestino = async (provinciaOrigen, ciudadDestino) => {
+  return await RecommendationCore.getRecomendadosPorProvinciaYDestino(provinciaOrigen, ciudadDestino);
 };
 

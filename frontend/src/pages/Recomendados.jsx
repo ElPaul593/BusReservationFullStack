@@ -37,10 +37,20 @@ export default function Recomendados() {
     try {
       setLoading(true);
       const data = await getRecomendados(ciudad, tipo, usuarioId);
-      setRecomendados(data);
+      // Asegurar que data sea un array
+      if (Array.isArray(data)) {
+        setRecomendados(data);
+      } else if (data && Array.isArray(data.recomendados)) {
+        // Si viene en formato { recomendados: [...] }
+        setRecomendados(data.recomendados);
+      } else {
+        console.warn('Formato de datos inesperado:', data);
+        setRecomendados([]);
+      }
     } catch (err) {
       console.error('Error cargando recomendaciones:', err);
-      alert('Error al cargar recomendaciones: ' + err.message);
+      setRecomendados([]);
+      alert('Error al cargar recomendaciones: ' + (err.message || 'Error desconocido'));
     } finally {
       setLoading(false);
     }
@@ -94,19 +104,22 @@ export default function Recomendados() {
               {item.descripcion && <p className="descripcion">{item.descripcion}</p>}
               
               <div className="stats">
-                <div className="stat-item">
-                  <span className="stat-label">Score:</span>
-                  <span className="stat-value">{item.score.toFixed(2)}</span>
-                </div>
+                {item.score !== undefined && (
+                  <div className="stat-item">
+                    <span className="stat-label">Score:</span>
+                    <span className="stat-value">{typeof item.score === 'number' ? item.score.toFixed(2) : item.score}</span>
+                  </div>
+                )}
                 <div className="stat-item">
                   <span className="stat-label">Calificación:</span>
                   <span className="stat-value">
-                    {renderStars(item.promedioGeneral)} {item.promedioGeneral.toFixed(1)}
+                    {renderStars(item.promedioGeneral || item.calificacionPromedio || 0)} 
+                    {(item.promedioGeneral || item.calificacionPromedio || 0).toFixed(1)}
                   </span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Reseñas:</span>
-                  <span className="stat-value">{item.totalCalificaciones}</span>
+                  <span className="stat-value">{item.totalCalificaciones || 0}</span>
                 </div>
                 {item.calificacionesMesActual > 0 && (
                   <div className="stat-item highlight">
@@ -114,10 +127,12 @@ export default function Recomendados() {
                     <span className="stat-value">{item.calificacionesMesActual} votos</span>
                   </div>
                 )}
-                {item.promedioMismaNacionalidad > 0 && (
+                {(item.promedioMismaNacionalidad > 0 || item.calificacionPromedio > 0) && (
                   <div className="stat-item highlight">
-                    <span className="stat-label">Tu nacionalidad:</span>
-                    <span className="stat-value">{item.promedioMismaNacionalidad.toFixed(1)} ⭐</span>
+                    <span className="stat-label">Tu provincia:</span>
+                    <span className="stat-value">
+                      {(item.promedioMismaNacionalidad || item.calificacionPromedio || 0).toFixed(1)} ⭐
+                    </span>
                   </div>
                 )}
               </div>
