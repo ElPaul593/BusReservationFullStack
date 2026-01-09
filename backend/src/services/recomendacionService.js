@@ -4,12 +4,31 @@ const LugarTuristicoRepo = require('../repositories/lugarTuristicoRepo');
 const RecommendationCore = require('../core/recommendationCore');
 
 /**
- * Algoritmo de recomendaciones personalizado por nacionalidad
+ * PATRÓN DE DISEÑO: Service Layer Pattern / Strategy Pattern
+ * Este servicio actúa como un adaptador/fachada que proporciona múltiples
+ * estrategias de recomendación (por nacionalidad, por provincia, generales).
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: coordinar diferentes algoritmos de recomendación.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de abstracciones (repositorios y RecommendationCore).
+ * 
+ * PATRÓN DE DISEÑO: Strategy Pattern (implícito)
+ * Proporciona diferentes estrategias de recomendación que pueden intercambiarse.
+ */
+
+/**
+ * PATRÓN STRATEGY: Estrategia de recomendación por nacionalidad
+ * Algoritmo de recomendaciones personalizado por nacionalidad.
  * Prioriza:
  * 1. Votaciones del mes en curso (peso mayor)
  * 2. Calificaciones de usuarios de la misma nacionalidad
  * 3. Calificaciones recientes (últimos 3 meses)
  * 4. Rating promedio general
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Método dedicado exclusivamente a generar recomendaciones por nacionalidad.
  */
 exports.getRecomendadosPorNacionalidad = async (paisOrigen, ciudad, tipo = 'lugarTuristico') => {
   const ahora = new Date();
@@ -140,7 +159,11 @@ exports.getRecomendadosPorNacionalidad = async (paisOrigen, ciudad, tipo = 'luga
 };
 
 /**
+ * PATRÓN STRATEGY: Estrategia de recomendación general
  * Obtener recomendados generales (sin filtro de nacionalidad)
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Método dedicado exclusivamente a generar recomendaciones generales.
  */
 exports.getRecomendadosGenerales = async (ciudad, tipo = 'lugarTuristico') => {
   const ahora = new Date();
@@ -188,8 +211,19 @@ exports.getRecomendadosGenerales = async (ciudad, tipo = 'lugarTuristico') => {
 };
 
 /**
- * Obtener recomendaciones personalizadas por provincia de origen
- * Este es el método principal que usa el algoritmo de recomendaciones por provincia
+ * PATRÓN STRATEGY: Estrategia de recomendación por provincia
+ * PATRÓN DE DISEÑO: Delegation Pattern
+ * Este método delega la implementación al RecommendationCore, actuando como
+ * un adaptador entre el servicio y el core de recomendaciones.
+ * 
+ * Obtener recomendaciones personalizadas por provincia de origen.
+ * Este es el método principal que usa el algoritmo de recomendaciones por provincia.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: delegar al core de recomendaciones.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción RecommendationCore.
  */
 exports.getRecomendadosPorProvincia = async (provinciaOrigen, ciudadDestino, usuarioId = null) => {
   return await RecommendationCore.getRecomendadosPorProvincia(provinciaOrigen, ciudadDestino, usuarioId);

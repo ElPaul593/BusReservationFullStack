@@ -1,5 +1,16 @@
 const ReservaService = require('../services/reservaService');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
+ * Controlador que maneja requests HTTP para reservas.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: manejar HTTP requests/responses para reservas.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción ReservaService.
+ */
+
 exports.getAll = async (req, res) => {
   try {
     const reservas = await ReservaService.getAll();

@@ -1,5 +1,14 @@
 const mongoose = require('mongoose');
 
+/**
+ * PATRÓN DE DISEÑO: Repository Pattern (Modelo)
+ * Este modelo define la estructura de datos para usuarios.
+ * Separa la definición del esquema de la lógica de acceso a datos.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Esta clase tiene una única responsabilidad: definir el esquema y validaciones
+ * del modelo User. No maneja lógica de negocio ni acceso a datos.
+ */
 const UserSchema = new mongoose.Schema({
   cedula: { 
     type: String, 

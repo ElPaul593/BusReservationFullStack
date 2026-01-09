@@ -4,12 +4,27 @@ const User = require('../models/userModel');
 const { validarCedulaEcuatoriana } = require('../utils/cedulaValidator');
 const { getProvinciaFromCedula } = require('../utils/provinciaUtils');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern
+ * Servicio especializado en autenticación y autorización.
+ * Encapsula toda la lógica relacionada con registro y login de usuarios.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: autenticación y registro de usuarios.
+ * Maneja validaciones, hash de contraseñas y generación de tokens JWT.
+ */
+
 const SALT_ROUNDS = 10;
 
 function validateCedula(cedula) {
   return /^[0-9]{1,10}$/.test(cedula);
 }
 
+/**
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Método dedicado exclusivamente al registro de usuarios.
+ * Maneja validaciones específicas para usuarios nacionales y extranjeros.
+ */
 exports.register = async ({ cedula, pasaporte, nombre, apellido, telefono, password, paisOrigen }) => {
   if (!nombre || !apellido || !telefono || !password || !paisOrigen) 
     throw new Error('Todos los campos son requeridos');
@@ -88,6 +103,11 @@ exports.register = async ({ cedula, pasaporte, nombre, apellido, telefono, passw
 };
 
 
+/**
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Método dedicado exclusivamente al proceso de login.
+ * Valida credenciales y genera tokens JWT.
+ */
 exports.login = async ({ cedula, pasaporte, password }) => {
   if (!password) throw new Error('Contraseña es requerida');
   if (!cedula && !pasaporte) throw new Error('Cédula o pasaporte es requerido');

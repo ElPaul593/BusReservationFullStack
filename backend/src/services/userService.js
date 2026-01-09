@@ -1,9 +1,28 @@
 const bcrypt = require('bcrypt');
 const UserRepo = require('../repositories/userRepo');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern
+ * Esta capa de servicio encapsula la lógica de negocio para usuarios.
+ * Actúa como intermediario entre los controladores y los repositorios.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: lógica de negocio para usuarios (validación, normalización,
+ * hash de contraseñas). No maneja HTTP ni acceso directo a base de datos.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción UserRepo, no de implementaciones concretas.
+ * Esto permite cambiar la implementación del repositorio sin afectar el servicio.
+ */
+
 exports.getAll  = async () => UserRepo.findAll();
 exports.getById = async (id) => UserRepo.findById(id);
 
+/**
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Este método tiene una única responsabilidad: crear usuarios con validación
+ * y normalización de datos. La lógica de hash de contraseñas está encapsulada aquí.
+ */
 exports.create = async (data) => {
   // server-side normalization (never trust frontend)
   const payload = {
@@ -25,6 +44,11 @@ exports.create = async (data) => {
   return UserRepo.create(payload);
 };
 
+/**
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Método dedicado exclusivamente a actualizar usuarios con validación
+ * y normalización de datos.
+ */
 exports.update = async (id, data = {}) => {
   const update = {};
 

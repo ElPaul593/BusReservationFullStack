@@ -1,5 +1,17 @@
 const HotelService = require('../services/hotelService');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
+ * Controlador que maneja requests HTTP para hoteles.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: manejar HTTP requests/responses para hoteles.
+ * Incluye lógica de routing basada en query parameters (ciudad).
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción HotelService.
+ */
+
 exports.getAll = async (req, res) => {
   try {
     const { ciudad } = req.query;

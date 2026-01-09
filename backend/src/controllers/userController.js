@@ -1,5 +1,18 @@
 const UserService = require('../services/userService');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
+ * Los controladores delegan la lógica de negocio a los servicios.
+ * Solo se encargan de manejar requests HTTP y responses.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: manejar HTTP requests/responses y delegar a servicios.
+ * No contiene lógica de negocio ni acceso directo a datos.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción UserService, no de implementaciones concretas.
+ */
+
 exports.getAll = async (req, res) => {
   try {
     const users = await UserService.getAll();

@@ -1,9 +1,26 @@
 const LugarTuristico = require('../models/lugarTuristicoModel');
 
+/**
+ * PATRÓN DE DISEÑO: Repository Pattern
+ * Repositorio que encapsula el acceso a datos de lugares turísticos.
+ * Proporciona búsquedas especializadas con normalización y regex.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: acceso a datos de lugares turísticos.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción del modelo LugarTuristico.
+ */
+
 exports.findAll = async (filters = {}) => {
   return LugarTuristico.find(filters).sort({ createdAt: -1 }).lean();
 };
 
+/**
+ * PATRÓN REPOSITORY: Método especializado de búsqueda
+ * Encapsula la lógica compleja de búsqueda por ciudad con normalización,
+ * escape de caracteres especiales y búsqueda case-insensitive.
+ */
 exports.findByCiudad = async (ciudad) => {
   // Búsqueda case-insensitive y que ignore espacios al inicio/final
   const ciudadNormalizada = ciudad ? ciudad.trim() : '';

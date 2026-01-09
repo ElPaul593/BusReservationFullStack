@@ -1,5 +1,17 @@
 const LugarTuristicoService = require('../services/lugarTuristicoService');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
+ * Controlador que maneja requests HTTP para lugares turísticos.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: manejar HTTP requests/responses para lugares turísticos.
+ * Incluye normalización de parámetros de query (ciudad).
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción LugarTuristicoService.
+ */
+
 exports.getAll = async (req, res) => {
   try {
     const { ciudad } = req.query;

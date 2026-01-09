@@ -2,6 +2,18 @@ const RecomendacionService = require('../services/recomendacionService');
 const User = require('../models/userModel');
 
 /**
+ * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
+ * Controlador que maneja requests HTTP para recomendaciones.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: manejar HTTP requests/responses para recomendaciones.
+ * Valida parámetros y delega la lógica de negocio al servicio.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción RecomendacionService.
+ */
+
+/**
  * Endpoint: Ver Recomendados
  * Obtiene recomendaciones personalizadas basadas en la provincia de origen del usuario
  * y la ciudad de destino. Solo considera calificaciones de usuarios de la misma provincia.

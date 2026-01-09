@@ -2,6 +2,17 @@ const LugarTuristicoRepo = require('../repositories/lugarTuristicoRepo');
 const LugarTuristico = require('../models/lugarTuristicoModel');
 const { lugaresTuristicos } = require('../data/seedData');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern
+ * Servicio que encapsula la lógica de negocio para lugares turísticos.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: lógica de negocio para lugares turísticos.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción LugarTuristicoRepo.
+ */
+
 exports.getAll = async (filters = {}) => {
   return LugarTuristicoRepo.findAll(filters);
 };
@@ -32,6 +43,10 @@ exports.delete = async (id) => {
   return LugarTuristicoRepo.deleteById(id);
 };
 
+/**
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Método dedicado exclusivamente a poblar la base de datos con lugares turísticos.
+ */
 exports.seedLugaresTuristicos = async (clearExisting = false) => {
   try {
     if (clearExisting) {

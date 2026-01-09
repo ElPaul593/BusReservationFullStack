@@ -5,18 +5,36 @@ const { getProvinciaFromCiudad, getCiudadesDeProvincia } = require('../utils/pro
 const LugaresRecomendados = require('../models/lugaresRecomendadosModel');
 
 /**
+ * PATRÓN DE DISEÑO: Service Layer Pattern / Core Business Logic
+ * Este módulo encapsula la lógica central del sistema de recomendaciones.
+ * Implementa un algoritmo personalizado de recomendaciones basado en provincia.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: lógica de recomendaciones personalizadas por provincia.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de abstracciones (repositorios), no de implementaciones concretas.
+ * Esto permite cambiar la implementación de los repositorios sin afectar este módulo.
+ */
+
+/**
  * Algoritmo de recomendaciones personalizado por provincia de origen
  * 
- * Este algoritmo filtra las calificaciones SOLO de usuarios de la misma provincia
- * de origen del usuario que solicita las recomendaciones. Por ejemplo:
- * - Si un usuario de Loja busca recomendaciones para Guayaquil, solo se consideran
- *   las calificaciones de otros usuarios de Loja que hayan calificado lugares de Guayaquil
- * - Las calificaciones de usuarios de otras provincias (ej: Pichincha) NO influyen
+ Este algoritmo filtra las calificaciones SOLO de usuarios de la misma provincia
+ de origen del usuario que solicita las recomendaciones. Por ejemplo:
+ - Si un usuario de Loja busca recomendaciones para Guayaquil, solo se consideran
+   las calificaciones de otros usuarios de Loja que hayan calificado lugares de Guayaquil
+  Las calificaciones de usuarios de otras provincias (ej: Pichincha) NO influyen
  * 
  * Prioriza:
  * 1. Calificaciones de usuarios de la misma provincia (peso 100%)
  * 2. Promedio de calificaciones (1-5 estrellas)
  * 3. Cantidad de calificaciones (factor de confianza)
+ */
+/**
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Método dedicado exclusivamente a generar recomendaciones basadas en provincia.
+ * Implementa un algoritmo que filtra calificaciones por provincia de origen del usuario.
  */
 exports.getRecomendadosPorProvincia = async (provinciaOrigen, ciudadDestino, usuarioId = null) => {
   try {
@@ -196,7 +214,11 @@ exports.getRecomendadosPorProvincia = async (provinciaOrigen, ciudadDestino, usu
 };
 
 /**
+ * PATRÓN REPOSITORY: Método de acceso a datos guardados
  * Obtener recomendaciones guardadas de la colección hija para un usuario y ruta específica
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: recuperar recomendaciones previamente calculadas y guardadas.
  */
 exports.getRecomendadosGuardados = async (usuarioId, rutaId) => {
   try {
@@ -218,7 +240,11 @@ exports.getRecomendadosGuardados = async (usuarioId, rutaId) => {
 };
 
 /**
+ * PATRÓN REPOSITORY: Método de acceso a datos guardados
  * Obtener recomendaciones guardadas por provincia de origen y ciudad de destino
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: recuperar recomendaciones por criterios de provincia y destino.
  */
 exports.getRecomendadosPorProvinciaYDestino = async (provinciaOrigen, ciudadDestino) => {
   try {

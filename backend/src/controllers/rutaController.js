@@ -1,5 +1,16 @@
 const RutaService = require('../services/rutaService');
 
+/**
+ * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
+ * Los controladores delegan la lógica de negocio a los servicios.
+ * 
+ * PRINCIPIO SOLID: Single Responsibility Principle (SRP)
+ * Responsabilidad única: manejar HTTP requests/responses para rutas.
+ * 
+ * PRINCIPIO SOLID: Dependency Inversion Principle (DIP)
+ * Depende de la abstracción RutaService.
+ */
+
 exports.getAll = async (req, res) => {
   try {
     const rutas = await RutaService.getAll();
