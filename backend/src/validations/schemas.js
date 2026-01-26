@@ -29,9 +29,30 @@ const authSchemas = {
 const reservaSchemas = {
   create: Joi.object({
     ruta: Joi.string().required(),
-    seatNumber: Joi.number().integer().min(1).required(),
-    status: Joi.string().valid('reserved', 'cancelled').optional()
-  }),
+    // Soporta un solo asiento o múltiples
+    seatNumber: Joi.number().integer().min(1).optional(),
+    seatNumbers: Joi.array().items(Joi.number().integer().min(1)).optional(),
+    status: Joi.string().valid('reserved', 'cancelled').optional(),
+    isQuickReservation: Joi.boolean().optional(),
+    tipo: Joi.string().valid('NORMAL', 'RAPIDA').optional(),
+    fecha: Joi.string().optional(),
+    pricing: Joi.object({
+      cantidad: Joi.number().optional(),
+      precioUnitario: Joi.number().optional(),
+      subtotal: Joi.number().optional(),
+      porcentajeDescuento: Joi.number().optional(),
+      montoDescuento: Joi.number().optional(),
+      total: Joi.number().optional(),
+      ahorros: Joi.number().optional(),
+      // Campos legacy
+      precioBase: Joi.number().optional(),
+      descuento: Joi.number().optional(),
+      recargo: Joi.number().optional(),
+      totalPagar: Joi.number().optional(),
+      motivoDescuento: Joi.string().allow(null, '').optional(),
+      motivoRecargo: Joi.string().allow(null, '').optional()
+    }).optional()
+  }).or('seatNumber', 'seatNumbers'), // Requiere uno de los dos
 
   query: Joi.object({
     page: Joi.number().integer().min(1).optional().default(1),

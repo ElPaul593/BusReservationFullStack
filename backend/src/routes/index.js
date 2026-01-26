@@ -13,8 +13,12 @@ const recomendacionRoutes = require('./recomendacionRoutes');
 const cedulaRoutes = require('./cedulaRoutes');
 const statsRoutes = require('./statsRoutes');
 const seatProxyRoutes = require("./seatProxy.routes");
+const asientosRoutes = require("./asientosRoutes");
+const pricingRoutes = require("./pricingRoutes");
 
 router.use("/seat", seatProxyRoutes);
+router.use("/asientos", asientosRoutes);
+router.use("/pricing", pricingRoutes);
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 router.use('/reservas', reservaRoutes);

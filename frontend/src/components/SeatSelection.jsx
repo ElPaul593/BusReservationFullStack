@@ -149,16 +149,21 @@ const SeatSelection = ({ rutaId, fecha, userId }) => {
     };
 
     const renderGrid = () => {
+        if (!seats || seats.length === 0) {
+            return <div>No hay asientos disponibles</div>;
+        }
+        
         const rows = [];
         for (let i = 0; i < 40; i += 4) {
             const rowSeats = seats.slice(i, i + 4);
+            // Validar que rowSeats tenga los elementos necesarios antes de renderizar
             rows.push(
                 <React.Fragment key={i}>
                     <SeatButton seat={rowSeats[0]} />
                     <SeatButton seat={rowSeats[1]} />
                     <div className="aisle"></div>
-                    <SeatButton seat={rowSeats[2]} />
-                    <SeatButton seat={rowSeats[3]} />
+                    {rowSeats[2] ? <SeatButton seat={rowSeats[2]} /> : <div className="seat-item hidden"></div>}
+                    {rowSeats[3] ? <SeatButton seat={rowSeats[3]} /> : <div className="seat-item hidden"></div>}
                 </React.Fragment>
             );
         }

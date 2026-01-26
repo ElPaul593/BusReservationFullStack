@@ -1,32 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HERO_CONTENT, FEATURES, RUTAS_POPULARES, CTA_CONTENT } from '../constants/demo';
-import { getRutas } from '../services/rutas';
-import BusSeatSelector from '../components/BusSeatSelector';
 
 export default function Demo() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-
-  // Quick reservation state
-  const [showQuickReserve, setShowQuickReserve] = useState(false);
-  const [rutas, setRutas] = useState([]);
-  const [selectedRuta, setSelectedRuta] = useState('');
-  const [selectedFecha, setSelectedFecha] = useState('');
-  const [showSeatSelector, setShowSeatSelector] = useState(false);
-
-  useEffect(() => {
-    loadRutas();
-  }, []);
-
-  const loadRutas = async () => {
-    try {
-      const response = await getRutas();
-      setRutas(Array.isArray(response) ? response : response.data || []);
-    } catch (e) {
-      console.error('Error loading rutas:', e);
-    }
-  };
 
   const handleGetStarted = () => {
     if (token) {
@@ -36,100 +14,8 @@ export default function Demo() {
     }
   };
 
-  const handleQuickReserve = () => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    setShowQuickReserve(true);
-  };
-
-  const handleStartSeatSelection = () => {
-    if (!selectedRuta || !selectedFecha) {
-      alert('Por favor selecciona ruta y fecha');
-      return;
-    }
-    setShowSeatSelector(true);
-  };
-
-  const today = new Date().toISOString().split('T')[0];
-
   return (
     <div className="demo-container">
-      {/* QUICK RESERVATION BANNER - PROMINENT */}
-      <section className="quick-reserve-banner">
-        <div className="container">
-          <div className="quick-reserve-content">
-            <span className="quick-icon">🎫</span>
-            <h2>¡Reserva tu asiento ahora!</h2>
-            <p>Selecciona tu ruta, fecha y asiento en segundos</p>
-            <button className="btn-quick-reserve" onClick={handleQuickReserve}>
-              🚌 Haz tu reserva rápida aquí
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Reserve Modal */}
-      {showQuickReserve && !showSeatSelector && (
-        <div className="modal-overlay" onClick={() => setShowQuickReserve(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowQuickReserve(false)}>✕</button>
-            <h2>🚌 Reserva Rápida</h2>
-            <div className="quick-form">
-              <div className="form-group">
-                <label>Selecciona tu ruta:</label>
-                <select value={selectedRuta} onChange={e => setSelectedRuta(e.target.value)}>
-                  <option value="">-- Elige una ruta --</option>
-                  {rutas.map(r => (
-                    <option key={r._id || r.id} value={r._id || r.id}>
-                      {r.from} ➜ {r.to} (${r.price})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Fecha de viaje:</label>
-                <input
-                  type="date"
-                  value={selectedFecha}
-                  onChange={e => setSelectedFecha(e.target.value)}
-                  min={today}
-                />
-              </div>
-              <button
-                className="btn-primary btn-full"
-                onClick={handleStartSeatSelection}
-                disabled={!selectedRuta || !selectedFecha}
-              >
-                Ver Asientos Disponibles
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Seat Selector Modal */}
-      {showSeatSelector && (
-        <div className="modal-overlay">
-          <div className="modal-content modal-large">
-            <BusSeatSelector
-              rutaId={selectedRuta}
-              fecha={selectedFecha}
-              onClose={() => {
-                setShowSeatSelector(false);
-                setShowQuickReserve(false);
-              }}
-              onReservationComplete={() => {
-                setShowSeatSelector(false);
-                setShowQuickReserve(false);
-                alert('¡Reserva completada exitosamente!');
-              }}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">

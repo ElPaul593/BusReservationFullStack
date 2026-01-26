@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { listUsers, createUser, updateUser, deleteUser, getCurrentUser } from '../services/users';
-import { getUserReservations, cancelReserva } from '../services/reservas';
+import { getUserReservations, cancelReserva, createReserva, createMultiSeatReserva } from '../services/reservas';
 import CedulaValidatorSimple from '../components/CedulaValidatorSimple';
 import BusSeatSelector from '../components/BusSeatSelector';
 import { getRutas } from '../services/rutas';
@@ -48,6 +48,10 @@ export default function Dashboard() {
   const [selectedRuta, setSelectedRuta] = useState('');
   const [selectedFecha, setSelectedFecha] = useState('');
   const [showSeatSelector, setShowSeatSelector] = useState(false);
+  const [isQuickReservation, setIsQuickReservation] = useState(false);
+
+  // --- Estados para Cambiar Asiento ---
+  const [changingSeatFor, setChangingSeatFor] = useState(null); // { reservaId, rutaId, fecha, currentSeat }
 
   // --- Callbacks y Effects ---
 
@@ -159,6 +163,25 @@ export default function Dashboard() {
       alert('Por favor selecciona ruta y fecha');
       return;
     }
+    setIsQuickReservation(true); // Marcar como reserva rápida
+    setShowSeatSelector(true);
+  };
+
+  const handleChangeSeat = (reserva) => {
+    // Abrir selector de asientos para cambiar el asiento de esta reserva
+    // Asegurar que rutaId sea un string (puede venir como objeto)
+    const rutaIdValue = reserva.ruta?._id || reserva.ruta?.id || reserva.ruta || '';
+    const rutaIdString = typeof rutaIdValue === 'object' && rutaIdValue !== null
+      ? (rutaIdValue._id || rutaIdValue.id || String(rutaIdValue))
+      : String(rutaIdValue);
+
+    setChangingSeatFor({
+      reservaId: reserva._id || reserva.id,
+      rutaId: rutaIdString,
+      fecha: reserva.fecha || new Date().toISOString().split('T')[0], // Usar fecha de la reserva o hoy
+      currentSeat: reserva.seatNumber
+    });
+    setIsQuickReservation(false); // No es reserva rápida, es cambio de asiento
     setShowSeatSelector(true);
   };
 
@@ -223,8 +246,10 @@ export default function Dashboard() {
 
   // Vista: Mis Reservas
   if (!isUserManagementDashboard) {
-    // Filtrar reservas canceladas
-    const reservasActivas = reservas.filter(r => r.status !== 'cancelled');
+    // Filtrar reservas canceladas y reservas rápidas
+    const reservasActivas = reservas.filter(r =>
+      r.status !== 'cancelled' && !r.isQuickReservation
+    );
 
     return (
       <div className="dashboard-container">
@@ -280,10 +305,84 @@ export default function Dashboard() {
             <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
               <div style={{ background: 'white', borderRadius: '16px', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
                 <BusSeatSelector
-                  rutaId={selectedRuta}
-                  fecha={selectedFecha}
-                  onClose={() => { setShowSeatSelector(false); setShowQuickReserve(false); }}
-                  onReservationComplete={() => { setShowSeatSelector(false); setShowQuickReserve(false); loadReservas(); alert('¡Reserva completada!'); }}
+                  rutaId={changingSeatFor?.rutaId ? String(changingSeatFor.rutaId) : (selectedRuta ? String(selectedRuta) : '')}
+                  fecha={changingSeatFor?.fecha || selectedFecha}
+                  onClose={() => {
+                    setShowSeatSelector(false);
+                    setShowQuickReserve(false);
+                    setChangingSeatFor(null);
+                    setIsQuickReservation(false);
+                  }}
+                  onReservationComplete={async (result) => {
+                    // Si estamos cambiando asiento, cancelar la reserva anterior y crear nueva
+                    if (changingSeatFor) {
+                      try {
+                        // Cancelar reserva anterior
+                        await cancelReserva(changingSeatFor.reservaId);
+                        // Crear UNA SOLA reserva con el/los nuevo(s) asiento(s)
+                        if (result.ok && changingSeatFor.rutaId) {
+                          const asientos = result.asientos || (result.asiento ? [result.asiento] : []);
+                          if (asientos.length > 0) {
+                            try {
+                              // Crear UNA reserva con todos los asientos
+                              await createMultiSeatReserva({
+                                ruta: changingSeatFor.rutaId,
+                                asientos,
+                                fecha: result.fecha || changingSeatFor.fecha,
+                                pricing: result.precio,
+                                tipo: 'NORMAL'
+                              });
+                              alert(`¡Asiento${asientos.length > 1 ? 's' : ''} cambiado${asientos.length > 1 ? 's' : ''} exitosamente! (${asientos.length} asiento${asientos.length > 1 ? 's' : ''})`);
+                            } catch (createErr) {
+                              console.error('Error creando nueva reserva:', createErr);
+                              alert('Asiento confirmado en la API externa, pero hubo un error al actualizar la reserva en el sistema.');
+                            }
+                          } else {
+                            alert('¡Asiento cambiado exitosamente!');
+                          }
+                        } else {
+                          alert('¡Asiento cambiado exitosamente!');
+                        }
+                      } catch (err) {
+                        alert('Error al cambiar asiento: ' + err.message);
+                      }
+                    } else {
+                      // Reserva rápida o normal - crear UNA reserva con todos los asientos
+                      if (result.ok && selectedRuta) {
+                        const asientos = result.asientos || (result.asiento ? [result.asiento] : []);
+                        if (asientos.length > 0) {
+                          try {
+                            // Crear UNA reserva con todos los asientos
+                            await createMultiSeatReserva({
+                              ruta: selectedRuta,
+                              asientos,
+                              fecha: result.fecha || selectedFecha,
+                              pricing: result.precio,
+                              tipo: isQuickReservation ? 'RAPIDA' : 'NORMAL'
+                            });
+
+                            if (isQuickReservation) {
+                              alert(`¡Reserva rápida completada!\nAsientos: [${asientos.join(', ')}]\nTotal: $${result.precio?.totalPagar?.toLocaleString() || '0'}\n\nNota: Esta reserva rápida no aparecerá en "Mis reservas".`);
+                            } else {
+                              alert(`¡Reserva completada!\n${asientos.length} asiento${asientos.length > 1 ? 's' : ''}: [${asientos.join(', ')}]\nTotal: $${result.precio?.totalPagar?.toLocaleString() || '0'}`);
+                            }
+                          } catch (err) {
+                            console.error('Error creando reserva:', err);
+                            alert('Reserva confirmada en la API externa, pero hubo un error al guardarla en el sistema.');
+                          }
+                        } else {
+                          alert('¡Reserva completada!');
+                        }
+                      } else if (result.ok) {
+                        alert('¡Reserva completada!');
+                      }
+                    }
+                    setShowSeatSelector(false);
+                    setShowQuickReserve(false);
+                    setChangingSeatFor(null);
+                    setIsQuickReservation(false);
+                    loadReservas();
+                  }}
                 />
               </div>
             </div>
@@ -319,8 +418,23 @@ export default function Dashboard() {
                       </div>
                       <div className="info-item">
                         <span className="label">Precio:</span>
-                        <span className="value">${reserva.ruta?.price}</span>
+                        <span className="value">
+                          {reserva.precio?.totalPagar
+                            ? `$${reserva.precio.totalPagar.toFixed(2)}`
+                            : `$${reserva.ruta?.price || '0.00'}`}
+                          {reserva.precio?.recargo > 0 && (
+                            <span style={{ fontSize: '12px', color: '#dc3545', marginLeft: '5px' }}>
+                              (incluye {reserva.precio.motivoRecargo})
+                            </span>
+                          )}
+                        </span>
                       </div>
+                      {reserva.precio?.precioBase && (
+                        <div className="info-item" style={{ fontSize: '12px', color: '#666' }}>
+                          <span className="label">Precio Base:</span>
+                          <span className="value">${reserva.precio.precioBase.toFixed(2)}</span>
+                        </div>
+                      )}
                       <div className="info-item">
                         <span className="label">Duración:</span>
                         <span className="value">{reserva.ruta?.duration}</span>
@@ -330,7 +444,14 @@ export default function Dashboard() {
                         <span className="value">{new Date(reserva.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <div className="boleto-actions">
+                    <div className="boleto-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <button
+                        className="change-seat-btn"
+                        onClick={() => handleChangeSeat(reserva)}
+                        style={{ backgroundColor: '#11998e', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '10px' }}
+                      >
+                        🔄 Cambiar Asiento
+                      </button>
                       <button
                         className="cancel-btn"
                         onClick={() => handleCancelReserva(reserva._id || reserva.id)}

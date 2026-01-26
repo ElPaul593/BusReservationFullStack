@@ -1,9 +1,11 @@
-import api from './api';
+import axios from 'axios';
 
 /**
- * Servicio para la API de Asientos
- * BaseURL: http://localhost:5000 (via proxy /api/seat)
+ * Servicio para la API de Asientos Externa
+ * BaseURL: http://localhost:5000/api/asientos
  */
+
+const SEAT_API_BASE_URL = import.meta.env.VITE_SEAT_API_URL || 'http://localhost:5000/api/asientos';
 
 const CLIENT_ID = () => {
     // Obtener userId del token o localStorage
@@ -20,23 +22,23 @@ const CLIENT_ID = () => {
 };
 
 /**
- * GET /api/seat/disponibles
+ * GET /api/asientos/disponibles
  * Obtiene lista de asientos disponibles para una ruta y fecha
  * Con fallback para cuando la API externa está dormida
  */
 export async function getDisponibles({ rutaId, fecha }) {
     try {
-        const response = await api.get('/seat/disponibles', {
+        const response = await axios.get(`${SEAT_API_BASE_URL}/disponibles`, {
             params: { rutaId, fecha },
-            timeout: 30000 // Override timeout for this endpoint
+            timeout: 30000
         });
         return response.data;
     } catch (err) {
         console.error('Error fetching disponibles:', err);
 
-        // FALLBACK: Si la API externa falla, devolver datos de prueba
-        if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-            console.warn('API timeout - usando datos de demostración');
+        // FALLBACK: Si la API externa falla (404, timeout, etc.), devolver datos de prueba
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || err.response?.status === 404) {
+            console.warn('API no disponible (timeout/404) - usando datos de demostración');
             return {
                 ok: true,
                 rutaId,
@@ -51,52 +53,58 @@ export async function getDisponibles({ rutaId, fecha }) {
 }
 
 /**
- * POST /api/seat/reservar
+ * POST /api/asientos/reservar
  * Crea un hold temporal sobre un asiento
  * Con fallback para modo demo
  */
 export async function createHold({ rutaId, fecha, seatNumber }) {
     try {
-        const response = await api.post('/seat/reservar', {
+        const userId = CLIENT_ID();
+        const response = await axios.post(`${SEAT_API_BASE_URL}/reservar`, {
             rutaId,
             fecha,
             asiento: seatNumber,
-            userId: CLIENT_ID()
+            userId: userId // El proxy espera userId, no clientId
         }, { timeout: 30000 });
         return response.data;
     } catch (err) {
         console.error('Error creating hold:', err);
         const errorMsg = String(err.response?.data?.error || err.message || '');
+        const errorDetails = err.response?.data;
 
-        // FALLBACK: Siempre usar demo si hay cualquier error de API externa
-        console.warn('API error - usando modo demostración para hold');
-        const demoHoldId = `demo_hold_${Date.now()}_${seatNumber}`;
-        return {
-            ok: true,
-            holdId: demoHoldId,
-            asiento: seatNumber,
-            rutaId: String(rutaId),
-            fecha: String(fecha),
-            expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-            remainingMs: 300000,
-            _isFallback: true,
-            _originalError: errorMsg
-        };
+        // FALLBACK: Usar demo si hay cualquier error de API externa (404, timeout, 400, etc.)
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || err.response?.status === 404 || err.response?.status === 400) {
+            console.warn('API no disponible o error de validación (timeout/404/400) - usando modo demostración para hold');
+            console.warn('Error details:', errorDetails);
+            const demoHoldId = `demo_hold_${Date.now()}_${seatNumber}`;
+            return {
+                ok: true,
+                holdId: demoHoldId,
+                asiento: seatNumber,
+                rutaId: String(rutaId),
+                fecha: String(fecha),
+                expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+                remainingMs: 300000,
+                _isFallback: true,
+                _originalError: errorMsg
+            };
+        }
+        throw err; // Re-lanzar otros errores
     }
 }
 
 /**
- * GET /api/seat/holds
+ * GET /api/asientos/holds
  * Obtiene lista de holds activos
  */
 export async function getHolds() {
     try {
-        const response = await api.get('/seat/holds', { timeout: 30000 });
+        const response = await axios.get(`${SEAT_API_BASE_URL}/holds`, { timeout: 30000 });
         return response.data;
     } catch (err) {
         console.error('Error fetching holds:', err);
-        // FALLBACK: Si la API falla, devolver lista vacía
-        if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        // FALLBACK: Si la API falla (404, timeout, etc.), devolver lista vacía
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || err.response?.status === 404) {
             return { ok: true, holds: [], count: 0, _isFallback: true };
         }
         return { ok: false, holds: [], error: err.message };
@@ -104,20 +112,33 @@ export async function getHolds() {
 }
 
 /**
- * DELETE /api/seat/holds
+ * DELETE /api/asientos/holds
  * Libera un hold (cancela reserva temporal)
+ * La API externa requiere holdId en el body
  */
-export async function deleteHold({ rutaId, fecha, asiento }) {
+export async function deleteHold({ holdId, rutaId, fecha, asiento }) {
     try {
-        const response = await api.delete('/seat/holds', {
-            data: { rutaId, fecha, asiento },
-            timeout: 30000
-        });
-        return response.data;
+        // Intentar primero con holdId (método preferido)
+        if (holdId) {
+            const response = await axios.delete(`${SEAT_API_BASE_URL}/holds`, {
+                data: { holdId },
+                timeout: 30000
+            });
+            return response.data;
+        }
+        // Fallback: usar rutaId, fecha, asiento si no hay holdId
+        if (rutaId && fecha && asiento) {
+            const response = await axios.delete(`${SEAT_API_BASE_URL}/holds`, {
+                data: { rutaId, fecha, asiento },
+                timeout: 30000
+            });
+            return response.data;
+        }
+        return { ok: false, error: 'Se requiere holdId o (rutaId, fecha, asiento)' };
     } catch (err) {
         console.error('Error deleting hold:', err);
-        // FALLBACK para demo
-        if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        // FALLBACK para demo (404, timeout, etc.)
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || err.response?.status === 404) {
             return { ok: true, released: true, _isFallback: true };
         }
         return { ok: false, error: err.response?.data?.error || err.message };
@@ -125,19 +146,36 @@ export async function deleteHold({ rutaId, fecha, asiento }) {
 }
 
 /**
- * POST /api/seat/reservar-definitivo
+ * POST /api/asientos/reservar-definitivo
  * Confirma un hold como reserva definitiva
+ * REQUIERE: rutaId, fecha, asiento, holdId
  */
-export async function confirmReserva({ holdId }) {
+export async function confirmReserva({ rutaId, fecha, asiento, holdId }) {
+    // Validar que todos los campos requeridos estén presentes
+    if (!rutaId || !fecha || !asiento || !holdId) {
+        const missing = [];
+        if (!rutaId) missing.push('rutaId');
+        if (!fecha) missing.push('fecha');
+        if (!asiento) missing.push('asiento');
+        if (!holdId) missing.push('holdId');
+        return { 
+            ok: false, 
+            error: `Campos requeridos faltantes: ${missing.join(', ')}` 
+        };
+    }
+
     try {
-        const response = await api.post('/seat/reservar-definitivo', {
+        const response = await axios.post(`${SEAT_API_BASE_URL}/reservar-definitivo`, {
+            rutaId,
+            fecha,
+            asiento,
             holdId
         }, { timeout: 30000 });
         return response.data;
     } catch (err) {
         console.error('Error confirming reservation:', err);
-        // FALLBACK para demo
-        if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || holdId?.startsWith('demo_')) {
+        // FALLBACK para demo (404, timeout, etc.)
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || err.response?.status === 404 || holdId?.startsWith('demo_')) {
             return { ok: true, reservedAt: new Date().toISOString(), _isFallback: true };
         }
         return { ok: false, error: err.response?.data?.error || err.message };
@@ -153,16 +191,34 @@ export async function confirmReserva({ holdId }) {
  * @returns {object[]} - Array de asientos con estado
  */
 export function buildSeatMap({ available, holds = [], total = 40, myUserId }) {
-    const availableSet = new Set(available || []);
+    // Asegurar que available sea un array
+    let availableArray = [];
+    if (Array.isArray(available)) {
+        availableArray = available;
+    } else if (available && typeof available === 'object') {
+        // Si viene como objeto con estructura {numero: X, estado: Y}, extraer los números
+        if (available.asientos && Array.isArray(available.asientos)) {
+            availableArray = available.asientos.map(a => typeof a === 'object' ? a.numero : a);
+        } else {
+            // Intentar convertir a array si es posible
+            availableArray = Object.values(available).filter(v => typeof v === 'number');
+        }
+    }
+    
+    const availableSet = new Set(availableArray);
     const holdMap = {};
 
     // Mapear holds por número de asiento
     (holds || []).forEach(h => {
-        holdMap[h.asiento] = h;
+        if (h && h.asiento) {
+            holdMap[h.asiento] = h;
+        }
     });
 
     const seats = [];
-    for (let i = 1; i <= total; i++) {
+    const totalSeats = Math.max(1, Math.floor(total) || 40); // Asegurar que total sea un número válido
+    
+    for (let i = 1; i <= totalSeats; i++) {
         let status = 'reserved'; // Por defecto, reservado/ocupado
         let holdInfo = null;
 
@@ -170,7 +226,7 @@ export function buildSeatMap({ available, holds = [], total = 40, myUserId }) {
             status = 'available';
         } else if (holdMap[i]) {
             holdInfo = holdMap[i];
-            if (holdMap[i].userId === myUserId) {
+            if (holdMap[i].userId === myUserId || holdMap[i].clientId === myUserId) {
                 status = 'heldByMe';
             } else {
                 status = 'heldByOther';

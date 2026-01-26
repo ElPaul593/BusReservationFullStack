@@ -76,7 +76,7 @@
 
 .driver-section {
     background: #34495e;
-    color: white;
+    color: #fff;
     padding: 10px;
     text-align: center;
     border-radius: 10px 10px 0 0;
@@ -124,8 +124,9 @@
 
 .seat-available {
     background: linear-gradient(145deg, #2ecc71, #27ae60);
-    color: white;
+    color: #000;
     border-color: #27ae60;
+    font-weight: bold;
 }
 
 .seat-heldByMe {
@@ -137,14 +138,16 @@
 
 .seat-heldByOther {
     background: linear-gradient(145deg, #e67e22, #d35400);
-    color: white;
+    color: #000;
     border-color: #c0392b;
+    font-weight: bold;
 }
 
 .seat-reserved {
     background: linear-gradient(145deg, #95a5a6, #7f8c8d);
-    color: white;
+    color: #000;
     border-color: #7f8c8d;
+    font-weight: bold;
 }
 
 .seat-selected {
@@ -245,7 +248,8 @@
 
 .btn-confirm {
     background: #27ae60;
-    color: white;
+    color: #000;
+    font-weight: bold;
 }
 
 .btn-confirm:hover:not(:disabled) {
@@ -254,7 +258,8 @@
 
 .btn-cancel {
     background: #e74c3c;
-    color: white;
+    color: #000;
+    font-weight: bold;
 }
 
 .btn-cancel:hover:not(:disabled) {
@@ -263,7 +268,8 @@
 
 .btn-refresh {
     background: #3498db;
-    color: white;
+    color: #000;
+    font-weight: bold;
 }
 
 .btn-refresh:hover:not(:disabled) {
