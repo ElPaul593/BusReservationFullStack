@@ -30,8 +30,7 @@ services:
     plan: free
     autoDeploy: true
     envVars:
+      # Configurar manualmente en Render Dashboard después del primer deploy
+      # Valor: https://bus-backend.onrender.com/api
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: bus-backend
-          property: url
+        sync: false
