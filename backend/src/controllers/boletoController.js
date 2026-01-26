@@ -1,4 +1,6 @@
 const BoletoService = require('../services/boletoService');
+const asyncHandler = require('../utils/asyncHandler');
+const { serializeBoleto } = require('../utils/serializers');
 
 /**
  * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
@@ -11,20 +13,18 @@ const BoletoService = require('../services/boletoService');
  * Depende de la abstracción BoletoService.
  */
 
-exports.getAll = async (req, res) => {
-  try {
-    const boletos = await BoletoService.getAll();
-    res.json(boletos);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+exports.getAll = asyncHandler(async (req, res) => {
+  const boletos = await BoletoService.getAll();
+  
+  res.json({
+    data: boletos.map(serializeBoleto)
+  });
+});
 
-exports.create = async (req, res) => {
-  try {
-    const boleto = await BoletoService.create(req.body);
-    res.status(201).json(boleto);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+exports.create = asyncHandler(async (req, res) => {
+  const boleto = await BoletoService.create(req.body);
+  
+  res.status(201).json({
+    data: serializeBoleto(boleto)
+  });
+});

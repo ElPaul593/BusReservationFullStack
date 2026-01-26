@@ -1,4 +1,7 @@
 const ReservaService = require('../services/reservaService');
+const asyncHandler = require('../utils/asyncHandler');
+const AppError = require('../utils/AppError');
+const { serializeReserva } = require('../utils/serializers');
 
 /**
  * PATRÓN DE DISEÑO: Service Layer Pattern (Controlador)
@@ -11,25 +14,38 @@ const ReservaService = require('../services/reservaService');
  * Depende de la abstracción ReservaService.
  */
 
-exports.getAll = async (req, res) => {
-  try {
-    const reservas = await ReservaService.getAll();
-    res.json(reservas);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+exports.getAll = asyncHandler(async (req, res) => {
+  const { page, limit, status, userId, from, to } = req.query;
+  
+  const options = {
+    page: parseInt(page) || 1,
+    limit: parseInt(limit) || 10,
+    status,
+    userId,
+    from,
+    to
+  };
 
-exports.create = async (req, res) => {
-  try {
-    const data = { 
-      ...req.body, 
-      usuario: req.user.id 
-    };
+  const result = await ReservaService.getAll(options);
+  
+  // Serializar datos
+  const serializedData = result.data.map(serializeReserva);
+  
+  res.json({
+    data: serializedData,
+    pagination: result.pagination
+  });
+});
 
-    const reserva = await ReservaService.create(data);
-    res.status(201).json(reserva);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+exports.create = asyncHandler(async (req, res) => {
+  const data = { 
+    ...req.body, 
+    user: req.user.id 
+  };
+
+  const reserva = await ReservaService.create(data);
+  
+  res.status(201).json({
+    data: serializeReserva(reserva)
+  });
+});

@@ -1,37 +1,22 @@
 const AuthService = require('../services/authService');
+const asyncHandler = require('../utils/asyncHandler');
+const AppError = require('../utils/AppError');
+const { serializeUser } = require('../utils/serializers');
 
-exports.register = async (req, res) => {
-  try {
+exports.register = asyncHandler(async (req, res) => {
+  const user = await AuthService.register(req.body);
 
-    const user = await AuthService.register(req.body);
+  res.status(201).json({ 
+    data: serializeUser(user)
+  });
+});
 
-    res.status(201).json({ 
-      id: user._id,
-      cedula: user.cedula || null,
-      pasaporte: user.pasaporte || null,
-      nombre: user.nombre,
-      apellido: user.apellido,
-      telefono: user.telefono,
-      paisOrigen: user.paisOrigen,
-      role: user.role, 
-    });
+exports.login = asyncHandler(async (req, res) => {
+  const result = await AuthService.login(req.body);
 
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
-exports.login = async (req, res) => {
-  try {
-    const result = await AuthService.login(req.body);
-
-    // result = { token, role }
-    res.json({ 
-      token: result.token,
-      role: result.role  
-    });
-
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+  // result = { token, role }
+  res.json({ 
+    token: result.token,
+    role: result.role  
+  });
+});

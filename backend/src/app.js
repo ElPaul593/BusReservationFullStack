@@ -7,6 +7,7 @@ const path = require('path');
 
 const connectDb = require('./config/db');
 const routes = require('./routes');
+const { swaggerUi, swaggerSpec } = require('./config/swagger');
 
 const app = express();
 
@@ -34,6 +35,9 @@ connectDb();
 
 // Health check (antes de las rutas de API)
 app.get('/health', (req, res) => res.json({ ok: true, name: 'BusReservation API' }));
+
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes API (deben estar antes de los archivos estáticos)
 app.use('/api', routes);
@@ -67,5 +71,9 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Not Found' });
   }
 });
+
+// Error handler middleware (debe ser el último)
+const errorHandler = require('./middleware/errorHandler');
+app.use(errorHandler);
 
 module.exports = app;

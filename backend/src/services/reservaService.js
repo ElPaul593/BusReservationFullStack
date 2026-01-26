@@ -11,8 +11,8 @@ const ReservaRepo = require('../repositories/reservaRepo');
  * Depende de la abstracción ReservaRepo.
  */
 
-exports.getAll = async () => {
-  return ReservaRepo.findAll();
+exports.getAll = async (options = {}) => {
+  return ReservaRepo.findAll(options);
 };
 
 /**
