@@ -12,7 +12,9 @@ const calificacionRoutes = require('./calificacionRoutes');
 const recomendacionRoutes = require('./recomendacionRoutes');
 const cedulaRoutes = require('./cedulaRoutes');
 const statsRoutes = require('./statsRoutes');
+const seatProxyRoutes = require("./seatProxy.routes");
 
+router.use("/seat", seatProxyRoutes);
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 router.use('/reservas', reservaRoutes);

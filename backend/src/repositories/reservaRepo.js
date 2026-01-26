@@ -34,15 +34,15 @@ exports.findAll = async (options = {}) => {
 
   // Construir query de filtros
   const query = {};
-  
+
   if (status) {
     query.status = status;
   }
-  
+
   if (userId) {
     query.user = userId;
   }
-  
+
   if (from || to) {
     query.createdAt = {};
     if (from) query.createdAt.$gte = new Date(from);
@@ -84,4 +84,8 @@ exports.create = async (data) => {
 
 exports.findById = async (id) => {
   return Reserva.findById(id).populate('user').populate('ruta');
+};
+
+exports.cancel = async (id) => {
+  return Reserva.findByIdAndUpdate(id, { status: 'cancelled' }, { new: true });
 };

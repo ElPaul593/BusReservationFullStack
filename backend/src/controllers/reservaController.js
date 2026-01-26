@@ -16,7 +16,7 @@ const { serializeReserva } = require('../utils/serializers');
 
 exports.getAll = asyncHandler(async (req, res) => {
   const { page, limit, status, userId, from, to } = req.query;
-  
+
   const options = {
     page: parseInt(page) || 1,
     limit: parseInt(limit) || 10,
@@ -27,10 +27,10 @@ exports.getAll = asyncHandler(async (req, res) => {
   };
 
   const result = await ReservaService.getAll(options);
-  
+
   // Serializar datos
   const serializedData = result.data.map(serializeReserva);
-  
+
   res.json({
     data: serializedData,
     pagination: result.pagination
@@ -38,14 +38,28 @@ exports.getAll = asyncHandler(async (req, res) => {
 });
 
 exports.create = asyncHandler(async (req, res) => {
-  const data = { 
-    ...req.body, 
-    user: req.user.id 
+  const data = {
+    ...req.body,
+    user: req.user.id
   };
 
   const reserva = await ReservaService.create(data);
-  
+
   res.status(201).json({
+    data: serializeReserva(reserva)
+  });
+});
+
+exports.cancel = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const reserva = await ReservaService.cancel(id);
+
+  if (!reserva) {
+    return res.status(404).json({ error: 'Reserva no encontrada' });
+  }
+
+  res.json({
+    message: 'Reserva cancelada exitosamente',
     data: serializeReserva(reserva)
   });
 });

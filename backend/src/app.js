@@ -48,7 +48,7 @@ const fs = require('fs');
 
 if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
-  
+
   // Catch-all handler: servir index.html para rutas del frontend (SPA routing)
   // IMPORTANTE: Este debe ir después de las rutas de API
   app.get('*', (req, res) => {

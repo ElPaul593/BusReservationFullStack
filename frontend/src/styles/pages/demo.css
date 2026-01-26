@@ -169,10 +169,157 @@
     flex-direction: column;
     text-align: center;
   }
-  
+
   .bus-illustration {
     font-size: 72px;
     margin-top: var(--spacing-md);
   }
 }
 
+/* Quick Reservation Banner */
+.quick-reserve-banner {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.quick-reserve-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.quick-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.quick-reserve-content h2 {
+  color: white;
+  margin: 0 0 10px;
+  font-size: 28px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.quick-reserve-content p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 20px;
+  font-size: 16px;
+}
+
+.btn-quick-reserve {
+  background: white;
+  color: #11998e;
+  border: none;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+}
+
+.btn-quick-reserve:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-large {
+  max-width: 700px;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-content h2 {
+  margin: 0 0 20px;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.quick-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quick-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quick-form label {
+  font-weight: 600;
+  color: #555;
+}
+
+.quick-form select,
+.quick-form input {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.quick-form select:focus,
+.quick-form input:focus {
+  outline: none;
+  border-color: #11998e;
+}
+
+.btn-full {
+  width: 100%;
+}

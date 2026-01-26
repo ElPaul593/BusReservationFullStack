@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { CIUDADES, CIUDADES_OPTIONS } from '../constants/ciudades';
 import { API_BASE_URL } from '../constants/api';
+import { createReserva } from '../services/reservas';
 
 export default function Boletos() {
   const [loading, setLoading] = useState(true);
@@ -11,7 +12,7 @@ export default function Boletos() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-  
+
   // Estados para los filtros
   const [filtros, setFiltros] = useState({
     origen: searchParams.get('origen') || '',
@@ -25,7 +26,7 @@ export default function Boletos() {
       navigate('/login');
       return;
     }
-    
+
     // Cargar rutas desde la base de datos
     fetchRutas();
   }, [token, navigate]);
@@ -64,14 +65,14 @@ export default function Boletos() {
 
     // Filtrar por origen
     if (filtros.origen) {
-      rutasFiltradas = rutasFiltradas.filter(ruta => 
+      rutasFiltradas = rutasFiltradas.filter(ruta =>
         ruta.from.toLowerCase() === filtros.origen.toLowerCase()
       );
     }
 
     // Filtrar por destino
     if (filtros.destino) {
-      rutasFiltradas = rutasFiltradas.filter(ruta => 
+      rutasFiltradas = rutasFiltradas.filter(ruta =>
         ruta.to.toLowerCase() === filtros.destino.toLowerCase()
       );
     }
@@ -111,9 +112,27 @@ export default function Boletos() {
     duracion: ruta.duration
   }));
 
-  const handleReservar = (boletoId) => {
-    alert(`Reservando boleto ID: ${boletoId}`);
-    // Aquí iría la lógica para reservar
+  const handleReservar = async (boletoId) => {
+    try {
+      const confirm = window.confirm('¿Confirmar reserva de este boleto?');
+      if (!confirm) return;
+
+      // Asumiendo que el endpoint espera { ruta: string, seatNumber: number }
+      // Para este demo, asignamos un asiento aleatorio o fijo (ej. 1)
+      // En una app real, el usuario elegiría el asiento.
+      const seatNumber = Math.floor(Math.random() * 20) + 1;
+
+      await createReserva({
+        ruta: boletoId,
+        seatNumber: seatNumber
+      });
+
+      alert('¡Reserva creada con éxito! Redirigiendo a tus reservas...');
+      navigate('/reservas');
+    } catch (err) {
+      console.error('Error creando reserva:', err);
+      alert('Error al crear la reserva: ' + err.message);
+    }
   };
 
   if (!token) {
@@ -157,7 +176,7 @@ export default function Boletos() {
         <div className="search-filters">
           <div className="filter-group">
             <label>Origen</label>
-            <select 
+            <select
               value={filtros.origen}
               onChange={(e) => handleFiltroChange('origen', e.target.value)}
             >
@@ -181,8 +200,8 @@ export default function Boletos() {
           </div>
           <div className="filter-group">
             <label>Fecha</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={filtros.fecha}
               onChange={(e) => handleFiltroChange('fecha', e.target.value)}
             />
@@ -215,7 +234,7 @@ export default function Boletos() {
                 </div>
                 <div className="precio">{boleto.precio}</div>
               </div>
-              
+
               <div className="boleto-info">
                 <div className="info-item">
                   <span className="label">Fecha:</span>
@@ -242,20 +261,20 @@ export default function Boletos() {
               </div>
 
               <div className="boleto-actions">
-                <button 
+                <button
                   className="reservar-btn"
                   onClick={() => handleReservar(boleto.id)}
                 >
                   Reservar Ahora
                 </button>
                 <div className="destino-links">
-                  <Link 
+                  <Link
                     to={`/destino?ciudad=${encodeURIComponent(boleto.destino)}`}
                     className="link-destino"
                   >
                     Ver Hoteles y Lugares
                   </Link>
-                  <Link 
+                  <Link
                     to={`/recomendados?ciudad=${encodeURIComponent(boleto.destino)}`}
                     className="link-recomendados"
                   >

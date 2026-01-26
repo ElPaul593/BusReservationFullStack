@@ -12,5 +12,5 @@ if (import.meta.env.VITE_API_URL) {
 }
 
 export const API_BASE_URL = baseURL;
-export const API_TIMEOUT = 5000;
+export const API_TIMEOUT = 30000; // 30 seconds for slow Render API
 
