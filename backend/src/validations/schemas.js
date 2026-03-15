@@ -119,11 +119,33 @@ const calificacionSchemas = {
   })
 };
 
+/**
+ * Schemas de validación para Pagos
+ */
+const pagoSchemas = {
+  create: Joi.object({
+    reservaId: Joi.string().required(),
+    metodoPago: Joi.string().valid('tarjeta', 'efectivo', 'transferencia', 'paypal').required()
+  }),
+
+  updateEstado: Joi.object({
+    estado: Joi.string().valid('pendiente', 'completado', 'fallido', 'reembolsado').required()
+  }),
+
+  query: Joi.object({
+    page: Joi.number().integer().min(1).optional().default(1),
+    limit: Joi.number().integer().min(1).max(100).optional().default(10),
+    estado: Joi.string().valid('pendiente', 'completado', 'fallido', 'reembolsado').optional(),
+    userId: Joi.string().optional()
+  })
+};
+
 module.exports = {
   authSchemas,
   reservaSchemas,
   boletoSchemas,
   rutaSchemas,
-  calificacionSchemas
+  calificacionSchemas,
+  pagoSchemas
 };
 
