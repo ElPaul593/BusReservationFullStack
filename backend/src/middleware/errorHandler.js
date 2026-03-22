@@ -23,6 +23,20 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+
+  if (err.name === 'CastError') {
+    return res.status(400).json({
+      status: 'fail',
+      message: `Valor inválido para ${err.path}`
+    });
+  }
+
   // Error de desarrollo: enviar stack trace
   if (process.env.NODE_ENV === 'development') {
     return res.status(err.statusCode).json({

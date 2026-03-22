@@ -100,8 +100,8 @@ export default function Boletos() {
     setRutasFiltradas(rutas);
   };
 
-  const boletosSample = (rutasFiltradas.length > 0 ? rutasFiltradas : rutas).map((ruta, index) => ({
-    id: ruta._id || index,
+  const boletosSample = (rutasFiltradas.length > 0 ? rutasFiltradas : rutas).map((ruta) => ({
+    id: ruta._id || ruta.id,
     origen: ruta.from,
     destino: ruta.to,
     fecha: '2025-10-15', // Fecha por defecto o podrías obtenerla de alguna parte
@@ -114,6 +114,10 @@ export default function Boletos() {
 
   const handleReservar = async (boletoId) => {
     try {
+      if (!boletoId || typeof boletoId !== 'string') {
+        throw new Error('La ruta seleccionada no tiene un ID válido para reservar. Recarga la página.');
+      }
+
       const confirm = window.confirm('¿Confirmar reserva de este boleto?');
       if (!confirm) return;
 
@@ -263,6 +267,7 @@ export default function Boletos() {
               <div className="boleto-actions">
                 <button
                   className="reservar-btn"
+                  disabled={!boleto.id || typeof boleto.id !== 'string'}
                   onClick={() => handleReservar(boleto.id)}
                 >
                   Reservar Ahora

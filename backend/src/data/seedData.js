@@ -1,5 +1,5 @@
 ﻿// Datos de lugares turísticos por provincia (sin Galápagos)
-const lugaresTuristicos = [
+const lugaresTuristicosRaw = [
   // Azuay (Cuenca)
   {
     nombre: 'Catedral de la Inmaculada Concepción',
@@ -2288,6 +2288,26 @@ const lugaresTuristicos = [
     imagen: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXQQtf37TT6bLR9FZ9iGBa5NVka_Z6RQY1Bg&s'
   }
 ];
+
+function deduplicateLugaresTuristicos(items) {
+  const seen = new Set();
+  const result = [];
+
+  // Recorremos de atrás hacia adelante para conservar el registro más reciente.
+  for (let i = items.length - 1; i >= 0; i--) {
+    const lugar = items[i] || {};
+    const key = `${String(lugar.ciudad || '').trim().toLowerCase()}|${String(lugar.nombre || '').trim().toLowerCase()}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push(lugar);
+    }
+  }
+
+  return result.reverse();
+}
+
+const lugaresTuristicos = deduplicateLugaresTuristicos(lugaresTuristicosRaw);
 
 // Función helper para obtener precio y duración basado en ciudades
 function getPrecioYDuracion(from, to) {

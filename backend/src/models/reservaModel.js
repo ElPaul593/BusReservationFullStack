@@ -41,16 +41,14 @@ ReservaSchema.virtual('allSeats').get(function () {
 });
 
 // Asegurar que siempre haya al menos un asiento
-ReservaSchema.pre('save', function (next) {
-  // Si vienen seatNumbers pero no seatNumber, usar el primero como seatNumber (legacy support)
+ReservaSchema.pre('save', function () {
+  // En Mongoose 9, este hook se ejecuta sin callback `next`
   if (this.seatNumbers && this.seatNumbers.length > 0 && !this.seatNumber) {
     this.seatNumber = this.seatNumbers[0];
   }
-  // Si viene seatNumber pero no seatNumbers, crear array (migration)
   if (this.seatNumber && (!this.seatNumbers || this.seatNumbers.length === 0)) {
     this.seatNumbers = [this.seatNumber];
   }
-  next();
 });
 
 module.exports = mongoose.model('Reserva', ReservaSchema);
