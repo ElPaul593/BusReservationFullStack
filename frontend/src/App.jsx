@@ -12,6 +12,7 @@ import Destino from './pages/Destino';
 import Recomendados from './pages/Recomendados';
 import ValidarCedula from './pages/ValidarCedula';
 import SeatBooking from './pages/SeatBooking';
+import LugaresTuristicos from './pages/LugaresTuristicos';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('token');
@@ -30,7 +31,7 @@ export default function App() {
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/boletos" element={<PrivateRoute><Boletos /></PrivateRoute>} />
         <Route path="/rutas" element={<PrivateRoute><Rutas /></PrivateRoute>} />
-        <Route path="/rutas" element={<PrivateRoute><Rutas /></PrivateRoute>} />
+        <Route path="/lugares-turisticos" element={<PrivateRoute><LugaresTuristicos /></PrivateRoute>} />
         <Route path="/reservas" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/seat-booking" element={<PrivateRoute><SeatBooking /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />

@@ -17,6 +17,12 @@ export default function Destino() {
   const [calificaciones, setCalificaciones] = useState({});
   const [showCalificarModal, setShowCalificarModal] = useState(null);
   const [calificacionForm, setCalificacionForm] = useState({ calificacion: CALIFICACION_DEFAULT, recomendacion: '' });
+  const [erroresImagen, setErroresImagen] = useState({});
+
+  const getFallbackImageUrl = (lugar) => {
+    const seed = encodeURIComponent(`${lugar.nombre}-${lugar.ciudad}`.toLowerCase());
+    return `https://picsum.photos/seed/${seed}/900/600`;
+  };
 
   useEffect(() => {
     if (!ciudad) {
@@ -195,27 +201,65 @@ export default function Destino() {
           ) : (
             lugares.map(lugar => {
               const califData = calificaciones[`lugarTuristico-${lugar._id}`] || { promedio: 0, calificaciones: [] };
+              const imagenInicial = lugar.imagen || getFallbackImageUrl(lugar);
+              const imagenDisponible = !erroresImagen[lugar._id];
               return (
                 <div key={lugar._id} className="item-card">
-                  <h3>{lugar.nombre}</h3>
-                  <p className="tipo">{lugar.tipo}</p>
-                  <p className="direccion">{lugar.direccion}</p>
-                  {lugar.descripcion && <p className="descripcion">{lugar.descripcion}</p>}
-                  {lugar.horario && <p className="info">Horario: {lugar.horario}</p>}
-                  {lugar.precioEntrada > 0 && <p className="precio">Entrada: ${lugar.precioEntrada}</p>}
-                  <div className="rating">
-                    <span className="stars">{renderStars(califData.promedio)}</span>
-                    <span className="rating-text">
-                      {califData.promedio > 0 ? califData.promedio.toFixed(1) : 'Sin calificaciones'} 
-                      ({califData.calificaciones.length} reseñas)
-                    </span>
+                  <div className="item-card-image">
+                    {imagenDisponible ? (
+                      <img
+                        src={imagenInicial}
+                        alt={lugar.nombre}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          // Primer fallo: intentar una URL estable por semilla; segundo fallo: ocultar imagen.
+                          if (e.currentTarget.dataset.fallbackApplied !== '1') {
+                            e.currentTarget.dataset.fallbackApplied = '1';
+                            e.currentTarget.src = getFallbackImageUrl(lugar);
+                            return;
+                          }
+                          setErroresImagen((prev) => ({ ...prev, [lugar._id]: true }));
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#ccc',
+                          background: '#1a1a1a',
+                          fontSize: '0.95rem'
+                        }}
+                      >
+                        Imagen no disponible
+                      </div>
+                    )}
                   </div>
-                  <button 
-                    className="btn-calificar"
-                    onClick={() => setShowCalificarModal({ tipo: 'lugarTuristico', referencia: lugar._id, nombre: lugar.nombre })}
-                  >
-                    Calificar y Recomendar
-                  </button>
+                  <div className="item-card-body">
+                    <h3>{lugar.nombre}</h3>
+                    <p className="tipo">{lugar.tipo}</p>
+                    <p>{lugar.direccion}</p>
+                    {lugar.descripcion && <p>{lugar.descripcion}</p>}
+                    {lugar.horario && <p>Horario: {lugar.horario}</p>}
+                    {lugar.precioEntrada > 0 && <p className="precio">Entrada: ${lugar.precioEntrada}</p>}
+                    <div className="rating">
+                      <span className="stars">{renderStars(califData.promedio)}</span>
+                      <span className="rating-text">
+                        {califData.promedio > 0 ? califData.promedio.toFixed(1) : 'Sin calificaciones'}
+                        ({califData.calificaciones.length} reseñas)
+                      </span>
+                    </div>
+                    <button 
+                      className="btn-calificar"
+                      onClick={() => setShowCalificarModal({ tipo: 'lugarTuristico', referencia: lugar._id, nombre: lugar.nombre })}
+                    >
+                      Calificar y Recomendar
+                    </button>
+                  </div>
                 </div>
               );
             })

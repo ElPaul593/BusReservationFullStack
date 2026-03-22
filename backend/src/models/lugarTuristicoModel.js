@@ -8,6 +8,7 @@ const LugarTuristicoSchema = new mongoose.Schema({
   tipo: { type: String, enum: ['Museo', 'Parque', 'Monumento', 'Playa', 'Montaña', 'Centro Histórico', 'Otro'], default: 'Otro' },
   horario: { type: String },
   precioEntrada: { type: Number, default: 0 },
+  imagen: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 

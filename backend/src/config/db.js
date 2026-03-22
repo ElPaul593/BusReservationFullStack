@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+// En Mongoose moderno, desactivar buffering evita timeouts largos cuando no hay conexión.
+mongoose.set('bufferCommands', false);
+
 const connectDb = async () => {
   const uri = process.env.MONGO_URI || '';
   
@@ -23,9 +26,7 @@ const connectDb = async () => {
   }
 
   try {
-    await mongoose.connect(uri, { 
-      useNewUrlParser: true, 
-      useUnifiedTopology: true,
+    await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
       socketTimeoutMS: 45000, // Timeout de socket
     });

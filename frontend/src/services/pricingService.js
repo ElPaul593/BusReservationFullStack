@@ -6,7 +6,7 @@ import axios from 'axios';
  * Endpoint: POST /api/pricing/calcular-precio
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pju6kl-ip-200-50-235-224.tunnelmole.net/api';
 
 /**
  * Obtiene el pricing desde el proxy local del backend

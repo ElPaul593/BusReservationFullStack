@@ -5,7 +5,7 @@ import axios from 'axios';
  * BaseURL: http://localhost:5000/api/asientos
  */
 
-const SEAT_API_BASE_URL = import.meta.env.VITE_SEAT_API_URL || 'http://localhost:5000/api/asientos';
+const SEAT_API_BASE_URL = import.meta.env.VITE_SEAT_API_URL || 'https://pju6kl-ip-200-50-235-224.tunnelmole.net/api/asientos';
 
 const CLIENT_ID = () => {
     // Obtener userId del token o localStorage
@@ -158,9 +158,9 @@ export async function confirmReserva({ rutaId, fecha, asiento, holdId }) {
         if (!fecha) missing.push('fecha');
         if (!asiento) missing.push('asiento');
         if (!holdId) missing.push('holdId');
-        return { 
-            ok: false, 
-            error: `Campos requeridos faltantes: ${missing.join(', ')}` 
+        return {
+            ok: false,
+            error: `Campos requeridos faltantes: ${missing.join(', ')}`
         };
     }
 
@@ -204,7 +204,7 @@ export function buildSeatMap({ available, holds = [], total = 40, myUserId }) {
             availableArray = Object.values(available).filter(v => typeof v === 'number');
         }
     }
-    
+
     const availableSet = new Set(availableArray);
     const holdMap = {};
 
@@ -217,7 +217,7 @@ export function buildSeatMap({ available, holds = [], total = 40, myUserId }) {
 
     const seats = [];
     const totalSeats = Math.max(1, Math.floor(total) || 40); // Asegurar que total sea un número válido
-    
+
     for (let i = 1; i <= totalSeats; i++) {
         let status = 'reserved'; // Por defecto, reservado/ocupado
         let holdInfo = null;

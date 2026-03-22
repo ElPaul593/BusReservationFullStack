@@ -42,6 +42,9 @@ export default function Navbar() {
               <Link to="/rutas" className={`navbar-link ${isActive('/rutas')}`}>
                 Rutas
               </Link>
+              <Link to="/lugares-turisticos" className={`navbar-link ${isActive('/lugares-turisticos')}`}>
+                Lugares Turísticos
+              </Link>
               <Link to="/reservas" className={`navbar-link ${isActive('/reservas')}`}>
                 Mis Reservas
               </Link>
@@ -110,6 +113,13 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Rutas
+              </Link>
+              <Link 
+                to="/lugares-turisticos" 
+                className={`mobile-link ${isActive('/lugares-turisticos')}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Lugares Turísticos
               </Link>
               <Link 
                 to="/reservas" 

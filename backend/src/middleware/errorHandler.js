@@ -8,6 +8,21 @@ const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
+  const message = String(err.message || '').toLowerCase();
+  const isDbUnavailable =
+    err.name === 'MongooseServerSelectionError' ||
+    message.includes('buffering timed out') ||
+    message.includes('before initial connection is complete') ||
+    message.includes('topology is closed') ||
+    message.includes('could not connect to any servers in your mongodb atlas cluster');
+
+  if (isDbUnavailable) {
+    return res.status(503).json({
+      status: 'fail',
+      message: 'Base de datos no disponible. Verifica MONGO_URI y Network Access en MongoDB Atlas.'
+    });
+  }
+
   // Error de desarrollo: enviar stack trace
   if (process.env.NODE_ENV === 'development') {
     return res.status(err.statusCode).json({
