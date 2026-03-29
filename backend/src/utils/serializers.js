@@ -107,11 +107,38 @@ const serializeCalificacion = (calificacion) => {
   };
 };
 
+/**
+ * Serializa un pago
+ */
+const serializePago = (pago) => {
+  if (!pago) return null;
+
+  const pagoObj = pago.toObject ? pago.toObject() : pago;
+
+  return {
+    id: pagoObj._id || pagoObj.id,
+    reserva: typeof pagoObj.reserva === 'object' && pagoObj.reserva
+      ? serializeReserva(pagoObj.reserva)
+      : pagoObj.reserva,
+    user: typeof pagoObj.user === 'object' && pagoObj.user
+      ? serializeUser(pagoObj.user)
+      : pagoObj.user,
+    monto: pagoObj.monto,
+    metodoPago: pagoObj.metodoPago,
+    estado: pagoObj.estado,
+    referencia: pagoObj.referencia || null,
+    pricing: pagoObj.pricing || null,
+    fechaPago: pagoObj.fechaPago || null,
+    createdAt: pagoObj.createdAt
+  };
+};
+
 module.exports = {
   serializeUser,
   serializeReserva,
   serializeBoleto,
   serializeRuta,
-  serializeCalificacion
+  serializeCalificacion,
+  serializePago
 };
 

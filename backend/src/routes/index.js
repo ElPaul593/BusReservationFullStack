@@ -15,6 +15,7 @@ const statsRoutes = require('./statsRoutes');
 const seatProxyRoutes = require("./seatProxy.routes");
 const asientosRoutes = require("./asientosRoutes");
 const pricingRoutes = require("./pricingRoutes");
+const pagoRoutes = require("./pagoRoutes");
 
 router.use("/seat", seatProxyRoutes);
 router.use("/asientos", asientosRoutes);
@@ -30,5 +31,6 @@ router.use('/calificaciones', calificacionRoutes);
 router.use('/recomendaciones', recomendacionRoutes);
 router.use('/cedula', cedulaRoutes);
 router.use('/stats', statsRoutes);
+router.use('/pagos', pagoRoutes);
 
 module.exports = router;
