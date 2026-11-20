@@ -32,7 +32,7 @@ test('CT-E2E-03 | HU-02: permite autenticarse con respuesta válida del backend 
   // verificamos el inicio de sesión sin asumir acceso administrativo.
   await page.goto('/boletos');
   await expect(page.getByRole('heading', { name: 'Boletos Disponibles' })).toBeVisible();
-  await expect(page.getByText(ROUTES[0].from).first()).toBeVisible();
+  await expect(page.locator('.boleto-card').first()).toContainText(ROUTES[0].from);
 });
 
 test('CT-E2E-04 | HU-02: una ruta privada redirige al login sin token', async ({ page }) => {
