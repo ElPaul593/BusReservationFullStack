@@ -20,7 +20,7 @@ test('CT-E2E-05 | HU-06: lista rutas y permite filtrar por origen y destino', as
 
 test('CT-E2E-06 | HU-07: muestra detalles del viaje seleccionado', async ({ page }) => {
   await page.goto('/boletos');
-  const card = page.locator('.boleto-card').filter({ hasText: 'Quito' });
+  const card = page.locator('.boleto-card').filter({ has: page.locator('.origen', { hasText: 'Quito' }) });
   await expect(card).toContainText('Guayaquil');
   await expect(card).toContainText('$15');
   await expect(card).toContainText('8 horas');
