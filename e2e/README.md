@@ -6,11 +6,11 @@ y automatiza las historias de usuario sin afectar cuentas ni reservas reales.
 
 ## Instalación (en la raíz del repositorio)
 
-Requisitos: Node.js 22+ y npm.
+Requisitos: Node.js 22+ y npm. El lockfile preexistente del frontend está desincronizado; por ello, el flujo usa \`npm install\` hasta que se repare con un commit independiente.
 
 ```bash
 cd frontend
-npm ci
+npm install --no-audit --no-fund
 cd ../e2e
 npm install
 npx playwright install chromium
